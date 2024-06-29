@@ -1,0 +1,8 @@
+-std=c23
+-Dnullptr=NULL
+-Dconstexpr=NULL
+-Imodules/std/include
+-Imodules/glfw/include
+-Imodules/vulkan/include
+-Imodules/gfx-hal/include
+
