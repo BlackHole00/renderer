@@ -2,3 +2,6 @@
 build
 **/.objs
 **/.hashs
+**/*.md5
+**/*.o
+**/*.a
