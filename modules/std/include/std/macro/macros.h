@@ -8,18 +8,16 @@
 #define STD_COMMA_2 STD_COMMA
 #define STD_COMMA_3 STD_COMMA_2
 
-#define STD_VA_ARGS_IS_EMPTY(...) (sizeof( (char[]){#__VA_ARGS__}) == 1)
-
 #define STD_EVAL(_expr) _expr
 
-#define STD_COUNT_VA_ARGS(...) _STD_COUNT_VA_ARGS( __VA_ARGS__ , \
-	31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, \
-	13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 \
-)
 #define _STD_COUNT_VA_ARGS(_31, _30, _29, _28, _27, _26, _25, _24, _23, _22, \
 	_21, _20, _19, _18, _17, _16, _15, _14, _13, _12, _11, _10, _9, _8, _7, \
 	_6, _5, _4, _3, _2, _1, N, ... \
 ) N
+#define STD_COUNT_VA_ARGS(...) _STD_COUNT_VA_ARGS( __VA_OPT__(__VA_ARGS__ ,) \
+	31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, \
+	13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 \
+)
 
 #define _STD_PREV_0 static_assert(false)
 #define _STD_PREV_1 0
@@ -159,6 +157,8 @@
 
 #define STD_GET_VA_ARGS_ELEM(_n, ...) STD_CAT(_STD_GET_VA_ARGS_ELEM_, _n)(__VA_ARGS__)
 #define STD_GET_LAST_VA_ARGS(...) STD_GET_VA_ARGS_ELEM(STD_COUNT_VA_ARGS(__VA_ARGS__), _ignored, __VA_ARGS__, )
+#define STD_GET_FIRST_VA_ARGS(...) _STD_GET_VA_ARGS_ELEM_0(__VA_ARGS__)
+#define STD_VA_ARGS_IS_EMPTY(...) STD_GET_FIRST_VA_ARGS(__VA_OPT__(0,) 1)
 
 #define _STD_GET_ALL_BUT_VA_ARGS_ELEM_0(_0, ...) STD_CAT(STD_EMPTY_MACRO, __VA_ARGS__)
 #define _STD_GET_ALL_BUT_VA_ARGS_ELEM_1(_0, _1, ...) STD_CAT(_0, __VA_ARGS__)
