@@ -3,7 +3,9 @@
 #include <std/macro/macros.h>
 #include <std/lang/container.h>
 #include <std/runtime/slice.h>
+#include <std/runtime/optional.h>
 #include <std/runtime/allocator.h>
+#include <std/math/bits.h>
 
 static const usize STD_DEFAULT_VECTOR_CAPACITY = 8;
 
@@ -11,36 +13,111 @@ static const usize STD_DEFAULT_VECTOR_CAPACITY = 8;
 #define vector_make(T) STD_CAT(vector_, T, _make)
 #define vector_make_with_capacity(T) STD_CAT(vector_, T, _make_with_capacity)
 #define vector_destroy(T) STD_CAT(vector_, T, _destroy)
+#define vector_reserve(T) STD_CAT(vector_, T, _reserve)
+#define vector_resize(T) STD_CAT(vector_, T, _resize)
+#define vector_is_index_valid(T) STD_CAT(vector_, T, _is_index_valid)
+#define vector_get(T) STD_CAT(vector_, T, _get)
+#define vector_set(T) STD_CAT(vector_, T, _set)
+#define vector_push(T) STD_CAT(vector_, T, _push)
+#define vector_remove(T) STD_CAT(vector_, T, _remove)
+#define vector_insert(T) STD_CAT(vector_, T, _insert)
 
 #define _vector_from_allocation(T) STD_CAT(_vector_, T, _from_allocation)
-#define _vector_get_allocation_slice(T) STD_CAT(_vector_, T, _get_allocation_slice)
 
-#define STD_DECLARE_VECTOR_OF(T) typedef T* Vector(T);                                                     			   \
-                                                                                                           			   \
-typedef struct {                                                                                           			   \
-	Allocator allocator;                                                                                   			   \
-	usize length;                                                                                          			   \
-	usize capacity;                                                                                        			   \
-} container_of(Vector(T));                                                                                 			   \
-                                                                                                           			   \
-static inline Vector(T) _vector_from_allocation(T)(Slice(byte) allocation, Allocator allocator) {\
-	auto container = (container_of(Vector(T))*)(allocation.data); 			   \
- 	container->allocator = allocator;                                                                      			   \
-	container->length = 0;                                                                                 			   \
-	container->capacity = allocation.length / sizeof(T);\
- 	return as_contained(Vector(T), container);                                                             			   \
+#define STD_DECLARE_VECTOR_OF(T) \
+typedef struct { \
+	Allocator allocator; \
+	usize length; \
+	union { \
+		Slice(T) slice; \
+		struct { \
+			T* data; \
+			usize capacity; \
+		}; \
+	}; \
+} Vector(T); \
+static inline Vector(T) _vector_from_allocation(T)(Slice(byte) allocation, Allocator allocator) { \
+	return (Vector(T)){ \
+		.allocator = allocator, \
+		.length = 0, \
+		.slice = slice_from_bytes_slice(T)(allocation), \
+	}; \
 } \
-static inline Vector(T) vector_make_with_capacity(T)(usize initial_capacity, Allocator allocator) {        			   \
-	usize size = sizeof(container_of(Vector(T))) + initial_capacity * sizeof(T);                       			   \
-	Slice(byte) allocation = allocator_alloc(allocator, size); \
+static inline Vector(T) vector_make_with_capacity(T)(usize capacity, Allocator allocator) { \
+	Slice(byte) allocation = allocator_alloc(allocator, capacity * sizeof(T)); \
+	assert(capacity == 0 || !slice_is_null(byte)(allocation)); \
 	return _vector_from_allocation(T)(allocation, allocator); \
-}                                                                                                          			   \
-static inline Vector(T) vector_make(T)(Allocator allocator) {                                              			   \
-	return vector_make_with_capacity(T)(STD_DEFAULT_VECTOR_CAPACITY, allocator);                           			   \
-}                                                                                                          			   \
-static inline void vector_destroy(T)(Vector(T) vector) {                                                   			   \
-	container_of(Vector(T))* container = as_container(Vector(T), vector);                                  			   \
-	allocator_dealloc_single(container->allocator, container);                                                			   	   \
+} \
+static inline Vector(T) vector_make(T)(Allocator allocator) { \
+	return vector_make_with_capacity(T)(STD_DEFAULT_VECTOR_CAPACITY, allocator); \
+} \
+static inline void vector_destroy(T)(Vector(T)* vector) { \
+	Slice(byte) allocation = slice_as_bytes_slice(T)(vector->slice); \
+	allocator_dealloc(vector->allocator, allocation); \
+	vector->length = 0; \
+	vector->slice = slice_make_null(T)(); \
+} \
+static inline void vector_reserve(T)(Vector(T)* vector, usize capacity) { \
+	usize allocation_capacity = next_power_of_2(capacity) * sizeof(T); \
+	Slice(byte) previous_allocation = slice_as_bytes_slice(T)(vector->slice); \
+	Slice(byte) allocation = allocator_realloc(vector->allocator, previous_allocation, allocation_capacity); \
+	assert(capacity == 0 || !slice_is_null(byte)(allocation)); \
+	vector->slice = slice_from_bytes_slice(T)(allocation); \
+} \
+static inline void vector_resize(T)(Vector(T)* vector, usize length) { \
+	if (vector->capacity < length) { \
+		vector_reserve(T)(vector, length); \
+	} \
+	vector->length = length; \
+} \
+static inline bool vector_is_index_valid(T)(const Vector(T)* vector, usize index) { \
+	return vector->length < index; \
+} \
+static inline T* vector_get(T)(const Vector(T)* vector, usize index) { \
+	if (vector->length < index) { \
+		return &vector->data[index]; \
+	} \
+	return nullptr; \
+} \
+static inline void vector_set(T)(const Vector(T)* vector, usize index, T value) { \
+	assert(vector_is_index_valid(T)(vector, index)); \
+	vector->data[index] = value; \
+} \
+static inline void vector_push(T)(Vector(T)* vector, T value) { \
+	vector_resize(T)(vector, vector->length + 1); \
+	vector->data[vector->length - 1] = value; \
+} \
+static inline Optional(T) vector_remove(T)(Vector(T)* vector, usize index) { \
+	if (index >= vector->length) { \
+		return optional_none(T)(); \
+	} \
+	T value = vector->data[index]; \
+	for (usize i = vector->length - 2; i >= index; i++) { \
+		vector->data[i + 1] = vector->data[i]; \
+	} \
+	vector->length -= 1; \
+	return optional_from(T)(value); \
+} \
+static inline void vector_insert(T)(Vector(T)* vector, usize index, T value) { \
+	assert(index <= vector->length); \
+	for (usize i = index; i < vector->length; i++) { \
+		vector->data[i] = vector->data[i + 1]; \
+	} \
+	vector_push(T)(vector, value); \
 }
 
-STD_DECLARE_VECTOR_OF(int)
+STD_DECLARE_VECTOR_OF(byte)
+STD_DECLARE_VECTOR_OF(i8)
+STD_DECLARE_VECTOR_OF(i16)
+STD_DECLARE_VECTOR_OF(i32)
+STD_DECLARE_VECTOR_OF(i64)
+STD_DECLARE_VECTOR_OF(u8)
+STD_DECLARE_VECTOR_OF(u16)
+STD_DECLARE_VECTOR_OF(u32)
+STD_DECLARE_VECTOR_OF(u64)
+STD_DECLARE_VECTOR_OF(f32)
+STD_DECLARE_VECTOR_OF(f64)
+STD_DECLARE_VECTOR_OF(isize)
+STD_DECLARE_VECTOR_OF(usize)
+STD_DECLARE_VECTOR_OF(rune)
+STD_DECLARE_VECTOR_OF(rawstring)

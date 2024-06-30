@@ -36,7 +36,7 @@ static inline void allocator_dealloc(Allocator allocator, Slice(byte) slice) {
 }
 
 static inline void allocator_dealloc_single(Allocator allocator, void* ptr) {
-	allocator_dealloc(allocator, slice_make(byte)(ptr, 1));
+	allocator_dealloc(allocator, slice_from(byte)(ptr, 1));
 }
 
 static inline Slice(byte) allocator_realloc(Allocator allocator, Slice(byte) slice, usize size) {

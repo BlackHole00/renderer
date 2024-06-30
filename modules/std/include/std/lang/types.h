@@ -27,3 +27,5 @@ typedef wchar_t rune;
 typedef char* rawstring;
 
 #define unicode_literal(_literal) (L"_literal")
+
+#define count_of(_array) (sizeof(_array) / sizeof(*_array))

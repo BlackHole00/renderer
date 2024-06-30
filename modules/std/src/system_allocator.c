@@ -6,9 +6,9 @@
 
 Slice(byte) systemallocator_alloc(void*, usize size, bool zeroed) {
 	if (zeroed) {
-		return slice_make(byte)(calloc(1, size), size);
+		return slice_from(byte)(calloc(1, size), size);
 	} else {
-		return slice_make(byte)(malloc(size), size);
+		return slice_from(byte)(malloc(size), size);
 	}
 }
 
@@ -22,9 +22,9 @@ Slice(byte) systemallocator_realloc(void*, Slice(byte) slice, usize size, bool z
 		memcpy(new_ptr, slice.data, (size > slice.length) ? size : slice.length);
 		free(slice.data);
 
-		return slice_make(byte)(new_ptr, size);
+		return slice_from(byte)(new_ptr, size);
 	} else {
-		return slice_make(byte)(realloc(slice.data, size), size);
+		return slice_from(byte)(realloc(slice.data, size), size);
 	}
 }
 
