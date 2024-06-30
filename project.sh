@@ -11,8 +11,8 @@ INCLUDE_FOLDERS=(modules/std/include modules/gfx-hal/include modules/glfw/includ
 LIBRARY_FOLDERS=(modules/std/lib modules/gfx-hal/lib modules/glfw/lib/darwin-arm64 modules/vulkan/lib/darwin)
 DEPENDENCIES=(modules/std modules/gfx-hal)
 LIBRARIES=(c++ std gfxhal glfw3 MoltenVK)
-EXTRA_BUILD_ARGS="-std=c23 -Wall -Wextra -Wpedantic"
-EXTRA_LINK_ARGS="-framework Cocoa \
+EXTRA_BUILD_ARGS="-fsanitize=address -std=c23 -Wall -Wextra -Wpedantic"
+EXTRA_LINK_ARGS="-fsanitize=address -framework Cocoa \
 	-framework IOKit \
 	-framework CoreVideo \
 	-framework Metal \
