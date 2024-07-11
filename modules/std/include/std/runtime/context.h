@@ -2,11 +2,13 @@
 
 #include <std/lang/types.h>
 #include <std/runtime/slice.h>
+#include <std/runtime/logger.h>
 #include <std/runtime/allocator.h>
 
 typedef struct {
 	Allocator allocator;
 	Allocator temp_allocator;
+	Logger logger;
 } Context;
 
 static inline Slice(byte) context_alloc(Context* context, usize size) {

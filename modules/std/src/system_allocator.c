@@ -13,7 +13,7 @@ Slice(byte) systemallocator_alloc(void*, usize size, bool zeroed) {
 }
 
 void systemallocator_dealloc(void*, Slice(byte) slice) {
-	return free(slice.data);
+	free(slice.data);
 }
 
 Slice(byte) systemallocator_realloc(void*, Slice(byte) slice, usize size, bool zeroed) {
