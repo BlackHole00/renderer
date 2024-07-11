@@ -1,4 +1,28 @@
 ################################################################################
+# PRELUDE
+################################################################################
+if [ "$1" = "prelude" ]; then
+	case $(uname) in
+		Darwin)
+			export OS=darwin;;
+		Linux)
+			export OS=linux;;
+		WindowsNT | Windows_NT | MINGW* | MSYS* | CYGWIN* )
+			export OS=windows;;
+		*)
+			echo "WARNING: Unknown OS"
+			export OS=unknown;;
+	esac
+
+	export ARCH=$(uname -m)
+	if [ "$ARCH" = "x86_64" ]; then
+		export ARCH=arm64
+	fi
+
+	return 0
+fi
+
+################################################################################
 # SANITY CHECKS
 ################################################################################
 if [ -z ${OUTPUT_FILE+x} ];      then echo "Parameter OUTPUT_FILE is undefined";      exit -1; fi
@@ -7,6 +31,7 @@ if [ -z ${BUILD_FOLDER+x} ];     then echo "Parameter BUILD_FOLDER is undefined"
 
 if [ -z ${CC+x} ]; then echo "Parameter CC is undefined"; exit -1; fi
 if [ -z ${AR+x} ]; then echo "Parameter AR is undefined"; exit -1; fi
+if [ -z ${LINK+x} ]; then echo "Parameter LINK is undefined"; exit -1; fi
 
 if [[ ! $TYPE =~ ^(executable|static|shared|interface)$ ]]; then
 	echo "Invalid project type"
@@ -101,7 +126,7 @@ case $TYPE in
 		printf "\n"
 		echo "Linking..."
 
-		link_command="$CC -o $BUILD_FOLDER/$OUTPUT_FILE $(echo $(find $BUILD_FOLDER/.objs -name '*.o')) $EXTRA_LINK_ARGS"
+		link_command="$LINK -o $BUILD_FOLDER/$OUTPUT_FILE $(echo $(find $BUILD_FOLDER/.objs -name '*.o')) $EXTRA_LINK_ARGS"
 		for folder in "${LIBRARY_FOLDERS[@]}"; do
 			link_command="$link_command -L$folder"
 		done

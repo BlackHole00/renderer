@@ -1,4 +1,5 @@
 #!/bin/sh
+source ${BUILDER_PATH}builder.sh prelude
 
 ################################################################################
 # BUILD PARAMETERS
@@ -8,22 +9,29 @@ TYPE=executable
 BUILD_FOLDER=build
 SOURCE_FOLDER=modules/main/src
 INCLUDE_FOLDERS=(modules/std/include modules/gfx-hal/include modules/glfw/include modules/vulkan/include)
-LIBRARY_FOLDERS=(modules/std/lib modules/gfx-hal/lib modules/glfw/lib/darwin-arm64 modules/vulkan/lib/darwin)
+LIBRARY_FOLDERS=(modules/std/lib modules/gfx-hal/lib modules/glfw/lib/$OS-$ARCH modules/vulkan/lib/$OS)
 DEPENDENCIES=(modules/std modules/gfx-hal)
-LIBRARIES=(c++ std gfxhal glfw3 MoltenVK)
+LIBRARIES=(c++ std gfxhal glfw3)
 EXTRA_BUILD_ARGS="-fsanitize=address -std=c23 -Wall -Wextra -Wpedantic"
-EXTRA_LINK_ARGS="-fsanitize=address -framework Cocoa \
-	-framework IOKit \
-	-framework CoreVideo \
-	-framework Metal \
-	-framework QuartzCore \
-	-framework CoreGraphics \
-	-framework AppKit \
-	-framework Foundation \
-	-framework IOSurface \
-"
+EXTRA_LINK_ARGS="-fsanitize=address"
+
+if [ "$OS" = "darwin" ]; then
+	LIBRARIES+=(MoltenVK)
+	EXTRA_LINK_ARGS+=" \
+		-framework Cocoa \
+		-framework IOKit \
+		-framework CoreVideo \
+		-framework Metal \
+		-framework QuartzCore \
+		-framework CoreGraphics \
+		-framework AppKit \
+		-framework Foundation \
+		-framework IOSurface \
+	"
+fi
 
 CC=clang
+LINK=clang
 AR=ar
 
 ################################################################################
