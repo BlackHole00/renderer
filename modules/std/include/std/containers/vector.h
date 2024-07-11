@@ -18,9 +18,10 @@ static const usize STD_DEFAULT_VECTOR_CAPACITY = 8;
 #define vector_is_index_valid(T) STD_CAT(vector_, T, _is_index_valid)
 #define vector_get(T) STD_CAT(vector_, T, _get)
 #define vector_set(T) STD_CAT(vector_, T, _set)
-#define vector_push(T) STD_CAT(vector_, T, _push)
+#define vector_append(T) STD_CAT(vector_, T, _append)
 #define vector_remove(T) STD_CAT(vector_, T, _remove)
 #define vector_insert(T) STD_CAT(vector_, T, _insert)
+#define vector_as_slice(T) STD_CAT(vector_, T, _as_slice)
 
 #define _vector_from_allocation(T) STD_CAT(_vector_, T, _from_allocation)
 
@@ -29,7 +30,7 @@ typedef struct { \
 	Allocator allocator; \
 	usize length; \
 	union { \
-		Slice(T) slice; \
+		Slice(T) allocation; \
 		struct { \
 			T* data; \
 			usize capacity; \
@@ -40,7 +41,7 @@ static inline Vector(T) _vector_from_allocation(T)(Slice(byte) allocation, Alloc
 	return (Vector(T)){ \
 		.allocator = allocator, \
 		.length = 0, \
-		.slice = slice_from_bytes_slice(T)(allocation), \
+		.allocation = slice_from_bytes_slice(T)(allocation), \
 	}; \
 } \
 static inline Vector(T) vector_make_with_capacity(T)(usize capacity, Allocator allocator) { \
@@ -52,17 +53,17 @@ static inline Vector(T) vector_make(T)(Allocator allocator) { \
 	return vector_make_with_capacity(T)(STD_DEFAULT_VECTOR_CAPACITY, allocator); \
 } \
 static inline void vector_destroy(T)(Vector(T)* vector) { \
-	Slice(byte) allocation = slice_as_bytes_slice(T)(vector->slice); \
+	Slice(byte) allocation = slice_as_bytes_slice(T)(vector->allocation); \
 	allocator_dealloc(vector->allocator, allocation); \
 	vector->length = 0; \
-	vector->slice = slice_make_null(T)(); \
+	vector->allocation = slice_make_null(T)(); \
 } \
 static inline void vector_reserve(T)(Vector(T)* vector, usize capacity) { \
 	usize allocation_capacity = next_power_of_2(capacity) * sizeof(T); \
-	Slice(byte) previous_allocation = slice_as_bytes_slice(T)(vector->slice); \
+	Slice(byte) previous_allocation = slice_as_bytes_slice(T)(vector->allocation); \
 	Slice(byte) allocation = allocator_realloc(vector->allocator, previous_allocation, allocation_capacity); \
 	assert(capacity == 0 || !slice_is_null(byte)(allocation)); \
-	vector->slice = slice_from_bytes_slice(T)(allocation); \
+	vector->allocation = slice_from_bytes_slice(T)(allocation); \
 } \
 static inline void vector_resize(T)(Vector(T)* vector, usize length) { \
 	if (vector->capacity < length) { \
@@ -83,7 +84,7 @@ static inline void vector_set(T)(const Vector(T)* vector, usize index, T value) 
 	assert(vector_is_index_valid(T)(vector, index)); \
 	vector->data[index] = value; \
 } \
-static inline void vector_push(T)(Vector(T)* vector, T value) { \
+static inline void vector_append(T)(Vector(T)* vector, T value) { \
 	vector_resize(T)(vector, vector->length + 1); \
 	vector->data[vector->length - 1] = value; \
 } \
@@ -103,7 +104,10 @@ static inline void vector_insert(T)(Vector(T)* vector, usize index, T value) { \
 	for (usize i = index; i < vector->length; i++) { \
 		vector->data[i] = vector->data[i + 1]; \
 	} \
-	vector_push(T)(vector, value); \
+	vector_append(T)(vector, value); \
+} \
+static inline Slice(T) vector_as_slice(T)(const Vector(T)* vector) { \
+	return slice_from(T)(vector->allocation.data, vector->length); \
 }
 
 STD_DECLARE_VECTOR_OF(byte)
