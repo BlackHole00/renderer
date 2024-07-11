@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <std/macro/macros.h>
 #include <std/lang/types.h>
+#include <std/runtime/optional.h>
 
 #define Slice(T) STD_CAT(Slice_, T)
 #define slice_from(T) STD_CAT(slice_, T, _from)
@@ -13,6 +14,9 @@
 #define slice_as_bytes_slice(T) STD_CAT(slice_, T, _as_bytes_slice)
 #define slice_is_null(T) STD_CAT(slice_, T, _is_null)
 #define slice_subslice(T) STD_CAT(slice_, T, _subslice)
+#define slice_contains(T) STD_CAT(slice_, T, _contains)
+#define slice_index_of(T) STD_CAT(slice_, T, _index_of)
+#define slice_find(T) STD_CAT(slice_, T, _find)
 
 #define STD_DECLARE_SLICE_OF(T)                                         	   \
 typedef struct {                                                        	   \
@@ -64,6 +68,30 @@ static inline Slice(T) slice_subslice(T)(Slice(T) slice, usize start, usize end)
 		.data = &slice.data[start], \
 		.length = end - start \
 	}; \
+} \
+static inline bool slice_contains(T)(Slice(T) slice, bool (^search_predicate)(const T*)) { \
+	for (usize i = 0; i < slice.length; i++) { \
+		if (search_predicate(&slice.data[i])) { \
+			return true; \
+		} \
+	} \
+	return false; \
+} \
+static inline Optional(usize) slice_index_of(T)(Slice(T) slice, bool (^search_predicate)(const T*)) { \
+	for (usize i = 0; i < slice.length; i++) { \
+		if (search_predicate(&slice.data[i])) { \
+			return optional_from(usize)(i); \
+		} \
+	} \
+	return optional_none(usize)(); \
+} \
+static inline T* slice_find(T)(Slice(T) slice, bool (^search_predicate)(const T*)) { \
+	for (usize i = 0; i < slice.length; i++) { \
+		if (search_predicate(&slice.data[i])) { \
+			return &slice.data[i]; \
+		} \
+	} \
+	return nullptr; \
 }
 
 STD_DECLARE_SLICE_OF(byte)
