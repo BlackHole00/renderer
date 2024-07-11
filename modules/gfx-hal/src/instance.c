@@ -15,13 +15,13 @@ static const gfx_VkInitializationExtension GFX_INSTANCE_BASE_EXTENSIONS[] = {
 	(gfx_VkInitializationExtension){ VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME, false }
 };
 static const gfx_VkInitializationExtension GFX_INSTANCE_BASE_DEBUG_EXTENSIONS[] = {
-	EMPTY_EXTENSION
+	// EMPTY_EXTENSION
 };
 static const gfx_VkInitializationLayer GFX_INSTANCE_BASE_LAYERS[] = {
-	EMPTY_LAYER
+	// EMPTY_LAYER
 };
 static const gfx_VkInitializationLayer GFX_INSTANCE_BASE_DEBUG_LAYERS[] = {
-	(gfx_VkInitializationExtension){ "VK_LAYER_KHRONOS_validation", true }
+	(gfx_VkInitializationLayer){ "VK_LAYER_KHRONOS_validation", true }
 };
 
 singleton struct gfx_Instance singleton_of(gfx_Instance);
@@ -80,6 +80,8 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Allo
 	descriptor_of(gfx_VkInstance) instance_descriptor = (descriptor_of(gfx_VkInstance)){
 		.application_name = (const rawstring)descriptor->application_name,
 		.application_version = descriptor->application_version,
+		.requested_extensions = extensions,
+		.requested_layers = layers,
 		.engine_name = "Vulkan GfxHal",
 		.engine_version = gfx_version_make(0, 0, 1),
 		.requested_version = gfx_version_make(1, 2, 0),

@@ -13,7 +13,7 @@ static bool gfx_vkinstance_check_extension_support(
 
 	for (usize i = 0; i < extensions.length; i++) {
 		gfx_VkInitializationExtension extension = extensions.data[i];
-		bool valid = !gfx_vkinstanceprober_is_extension_supported(prober, extension.name);
+		bool valid = gfx_vkinstanceprober_is_extension_supported(prober, extension.name);
 
 		if (!valid && extension.critical) {
 			has_invalid_extensions = true;
@@ -38,7 +38,9 @@ static bool gfx_vkinstance_check_layer_support(
 
 	for (usize i = 0; i < layers.length; i++) {
 		gfx_VkInitializationLayer layer = layers.data[i];
-		bool valid = !gfx_vkinstanceprober_is_layer_supported(prober, layer.name);
+		bool valid = gfx_vkinstanceprober_is_layer_supported(prober, layer.name);
+
+		printf("%s %d", layer.name, valid);
 
 		if (!valid && layer.critical) {
 			has_invalid_layers = true;

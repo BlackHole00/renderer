@@ -79,7 +79,12 @@ bool gfx_vkinstanceprober_is_extension_supported(const gfx_VkInstanceProber* pro
 	return slice_contains(VkExtensionProperties)(
 	    prober->supported_extensions, 
 	    lambda((const VkExtensionProperties* extension){
-	        return equality_comparator(rawstring)((rawstring)(extension->extensionName), extension_name);
+	        rawstring search_name = extension_name;
+	        rawstring extension_name = (rawstring)extension->extensionName;
+	        return equality_comparator(rawstring)(
+	            (rawstring*)(&extension_name), 
+	            &search_name
+	        );
 		})
 	);
 }
@@ -88,7 +93,12 @@ bool gfx_vkinstanceprober_is_layer_supported(const gfx_VkInstanceProber* prober,
 	return slice_contains(VkLayerProperties)(
 	    prober->supported_layers, 
 	    lambda((const VkLayerProperties* layer){
-	        return equality_comparator(rawstring)((rawstring)(layer->layerName), layer_name);
+	        rawstring search_name = layer_name;
+	        rawstring layer_name = (rawstring)(layer->layerName);
+	        return equality_comparator(rawstring)(
+	            &layer_name, 
+	            &search_name
+	        );
 		})
 	);
 }
