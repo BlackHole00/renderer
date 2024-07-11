@@ -1,0 +1,7 @@
+#pragma once
+
+typedef enum {
+	GFX_SUPPORTSTATUS_UNKNOWN,
+	GFX_SUPPORTSTATUS_SUPPORTED,
+	GFX_SUPPORTSTATUS_UNSUPPORTED
+} gfx_SupportStatus;

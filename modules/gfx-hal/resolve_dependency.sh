@@ -11,10 +11,11 @@ INCLUDE_FOLDERS=(include ../std/include ../vulkan/include ../glfw/include)
 LIBRARY_FOLDERS=()
 DEPENDENCIES=()
 LIBRARIES=()
-EXTRA_BUILD_ARGS="-std=c23 -Wall -Wextra -Wpedantic"
-EXTRA_LINK_ARGS=
+EXTRA_BUILD_ARGS="-fblocks -std=c23 -Wall -Wextra -Wpedantic"
+EXTRA_LINK_ARGS="-fblocks"
 
 CC=clang
+LINK=clang
 AR=ar
 
 ################################################################################
