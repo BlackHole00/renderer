@@ -1,7 +1,6 @@
 #pragma once
 
 #include <std/macro/macros.h>
-#include <std/lang/container.h>
 #include <std/runtime/slice.h>
 #include <std/runtime/optional.h>
 #include <std/runtime/allocator.h>

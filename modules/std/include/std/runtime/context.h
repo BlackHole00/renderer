@@ -49,6 +49,9 @@ static inline void context_dealloc_all(Context* context) {
 #define context_debug(...) context_debug_ex (sourcecodelocation_current(), __VA_ARGS__)
 #define context_trace(...) context_trace_ex (sourcecodelocation_current(), __VA_ARGS__)
 
+static inline void context_log_ex(SourceCodeLocation location, Context* context, LogLevel level, rawstring format, va_list args) {
+	logger_log_ex(location, context->logger, level, format, args);
+}
 static inline STD_PRINTF_LIKE(3, 4) void context_fatal_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	va_list args;
 	va_start(args, format);

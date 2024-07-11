@@ -3,8 +3,14 @@
 #include <stdio.h>
 
 static void consolelogger_log(void* logger_data, LogLevel level, rawstring message, SourceCodeLocation location) {
-	// TODO(Vicix): implement colors and time
-	printf("[%s] %s:%lu - %s\n", LOG_LEVEL_NAMES[level], location.function, location.line, message);
+	printf("[%s%s%s] %s:%lu - %s\n", 
+		LOG_LEVEL_ESCAPE_COLORS[level], 
+		LOG_LEVEL_NAMES[level], 
+		LOG_DEFAULT_TEXT_ESCAPE_COLOR, 
+		location.function, 
+		location.line, 
+		message
+	);
 }
 
 static void consolelogger_flush(void* logger_data) {
