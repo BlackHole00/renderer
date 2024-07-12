@@ -103,3 +103,21 @@ bool gfx_vkinstanceprober_is_layer_supported(const gfx_VkInstanceProber* prober,
 	);
 }
 
+// TODO(Vicix): Improve version printing
+void gfx_vkinstanceprober_report(const gfx_VkInstanceProber* prober, Logger logger) {
+	log_debug(logger, "Probed Vulkan instance with the following properties:");
+	log_debug(logger, "\t- Supported Vulkan version: %x", prober->supported_vulkan_version);
+
+	log_debug(logger, "\t- Supported extensions:");
+	for (usize i = 0; i < prober->supported_extensions.length; i++) {
+		VkExtensionProperties* extension = &prober->supported_extensions.data[i];
+		log_debug(logger, "\t\t- %s (version: %x)", extension->extensionName, extension->specVersion);
+	}
+
+	log_debug(logger, "\t- Supported layers:");
+	for (usize i = 0; i < prober->supported_layers.length; i++) {
+		VkLayerProperties* layer = &prober->supported_layers.data[i];
+		log_debug(logger, "\t\t- %s (version: %x)", layer->layerName, layer->specVersion);
+	}
+}
+

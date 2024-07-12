@@ -14,11 +14,11 @@ typedef struct {
 } descriptor_of(gfx_Instance);
 
 extern singleton struct gfx_Instance {
-	Allocator allocator;
+	Context* context;
 
 	gfx_VkInstance instance;
 	bool debug_enabled;
 } singleton_of(gfx_Instance);
 
-gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Allocator allocator);
+gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Context* context);
 void gfx_instance_deinit();

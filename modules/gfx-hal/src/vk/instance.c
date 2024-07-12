@@ -54,14 +54,16 @@ static bool gfx_vkinstance_check_layer_support(
 	return !has_invalid_layers;
 }
 
-gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx_VkInstance)* descriptor, Allocator allocator) {
+gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx_VkInstance)* descriptor, Context* context) {
 	gfx_Result result;
 
 	gfx_VkInstanceProber prober;
-	result = gfx_vkinstanceprober_make(&prober, allocator);
+	result = gfx_vkinstanceprober_make(&prober, context->allocator);
 	if (result != GFX_SUCCESS) {
 		return result;
 	}
+
+	gfx_vkinstanceprober_report(&prober, context->logger);
 
 	if (!gfx_vkinstanceprober_is_version_supported(&prober, descriptor->requested_version)) {
 		return GFX_UNSUPPORTED_VK_VERSION;
@@ -70,7 +72,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	    &prober, 
 	    descriptor->requested_extensions, 
 	    &instance->enabled_extensions, 
-	    allocator)
+	    context->allocator)
 	) {
 		result = GFX_UNSUPPORTED_VK_INSTANCE_EXTENSION;
 		goto error;
@@ -79,7 +81,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	    &prober, 
 	    descriptor->requested_layers, 
 	    &instance->enabled_layers, 
-	    allocator)
+	    context->allocator)
 	) {
 		result = GFX_UNSUPPORTED_VK_INSTANCE_LAYER;
 		goto error;
@@ -113,21 +115,21 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 		return result;
 	}
 
-	instance->allocator = allocator;
+	instance->context = context;
 	instance->supported_version = descriptor->requested_version;
 
 	return GFX_SUCCESS;
 
 error:
-	slice_delete(rawstring)(instance->enabled_extensions, instance->allocator);
-	slice_delete(rawstring)(instance->enabled_layers, instance->allocator);
+	slice_delete(rawstring)(instance->enabled_extensions, context->allocator);
+	slice_delete(rawstring)(instance->enabled_layers, context->allocator);
 
 	return result;
 }
 
 void gfx_vkinstance_delete(const gfx_VkInstance* instance) {
-	slice_delete(rawstring)(instance->enabled_extensions, instance->allocator);
-	slice_delete(rawstring)(instance->enabled_layers, instance->allocator);
+	slice_delete(rawstring)(instance->enabled_extensions, instance->context->allocator);
+	slice_delete(rawstring)(instance->enabled_layers, instance->context->allocator);
 
 	vkDestroyInstance(instance->instance, nullptr);
 }

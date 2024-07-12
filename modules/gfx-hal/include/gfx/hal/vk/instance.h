@@ -18,12 +18,12 @@ typedef struct {
 } descriptor_of(gfx_VkInstance);
 
 typedef struct {
-	Allocator allocator;
+	Context* context;
 	VkInstance instance;
 	Slice(rawstring) enabled_extensions;
 	Slice(rawstring) enabled_layers;
 	gfx_Version supported_version;
 } gfx_VkInstance;
 
-gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx_VkInstance)* descriptor, Allocator allocator);
+gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx_VkInstance)* descriptor, Context* context);
 void gfx_vkinstance_delete(const gfx_VkInstance* instance);

@@ -21,7 +21,8 @@ static const gfx_VkInitializationLayer GFX_INSTANCE_BASE_LAYERS[] = {
 	// EMPTY_LAYER
 };
 static const gfx_VkInitializationLayer GFX_INSTANCE_BASE_DEBUG_LAYERS[] = {
-	(gfx_VkInitializationLayer){ "VK_LAYER_KHRONOS_validation", true }
+	(gfx_VkInitializationLayer){ "MoltenVK", false },
+	(gfx_VkInitializationLayer){ "VK_LAYER_KHRONOS_validation", false }
 };
 
 singleton struct gfx_Instance singleton_of(gfx_Instance);
@@ -71,10 +72,10 @@ static Slice(gfx_VkInitializationLayer) gfx_instance_get_initialization_layers(b
 	}
 }
 
-gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Allocator allocator) {
+gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Context* context) {
 	gfx_Result result = GFX_SUCCESS;
 
-	Slice(gfx_VkInitializationExtension) extensions = gfx_instance_get_initialization_extensions(descriptor->enable_debug, allocator);
+	Slice(gfx_VkInitializationExtension) extensions = gfx_instance_get_initialization_extensions(descriptor->enable_debug, context->allocator);
 	Slice(gfx_VkInitializationLayer) layers = gfx_instance_get_initialization_layers(descriptor->enable_debug);
 
 	descriptor_of(gfx_VkInstance) instance_descriptor = (descriptor_of(gfx_VkInstance)){
@@ -87,15 +88,15 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Allo
 		.requested_version = gfx_version_make(1, 2, 0),
 	};
 
-	singleton_of(gfx_Instance).allocator = allocator;
+	singleton_of(gfx_Instance).context = context;
 	singleton_of(gfx_Instance).debug_enabled = descriptor->enable_debug;
 	result = gfx_vkinstance_make(
          &singleton_of(gfx_Instance).instance, 
          &instance_descriptor, 
-         allocator
+         context
      );
 
-	slice_delete(gfx_VkInitializationExtension)(extensions, allocator);
+	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
 	return result;
 }
 

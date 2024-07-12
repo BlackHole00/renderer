@@ -30,3 +30,8 @@
 	Logger: logger_trace_ex \
 )(sourcecodelocation_current(), __VA_ARGS__)
 
+#define log_flush(...) _Generic(__VA_ARGS__,  \
+	Context*: context_logger_flush, \
+	Logger: logger_flush \
+)(__VA_ARGS__)
+

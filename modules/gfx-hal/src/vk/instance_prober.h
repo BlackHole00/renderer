@@ -19,3 +19,5 @@ static inline bool gfx_vkinstanceprober_is_version_supported(const gfx_VkInstanc
 	return prober->supported_vulkan_version >= version;
 }
 
+void gfx_vkinstanceprober_report(const gfx_VkInstanceProber* prober, Logger logger);
+

@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 static void consolelogger_log(void* logger_data, LogLevel level, rawstring message, SourceCodeLocation location) {
-	printf("[%s%s%s] %s:%lu - %s\n", 
+	printf("[%s%s%s] %s:%lu\t: %s\n", 
 		LOG_LEVEL_ESCAPE_COLORS[level], 
 		LOG_LEVEL_NAMES[level], 
 		LOG_DEFAULT_TEXT_ESCAPE_COLOR, 

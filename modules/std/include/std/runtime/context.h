@@ -101,3 +101,7 @@ static inline STD_PRINTF_LIKE(3, 4) void context_trace_ex(SourceCodeLocation loc
 	va_end(args);
 }
 
+static inline void context_logger_flush(Context* context) {
+	logger_flush(context->logger);
+}
+

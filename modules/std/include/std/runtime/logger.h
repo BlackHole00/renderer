@@ -95,3 +95,7 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_trace_ex(SourceCodeLocation loca
 	va_end(args);
 }
 
+static inline void logger_flush(Logger logger) {
+	logger.vtable->flush(logger.logger_data);
+}
+
