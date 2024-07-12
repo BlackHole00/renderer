@@ -7,6 +7,7 @@ import platform
 import pathlib
 import subprocess
 import hashlib
+import asyncio
 
 CONFIG_TARGET = 'project.ini'
 OPERATION = ''
@@ -17,7 +18,7 @@ VERSION = '1.0.0'
 logging.basicConfig(format='[%(levelname)s] : %(message)s')
 
 logger = logging.getLogger('Builder')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 ################################################################################
 # SANITY_CHECKS
@@ -236,6 +237,15 @@ if DEPENDENCIES != "":
             logger.critical('Dependency "%s" is invalid' % dependency); sys.exit(-1)
 
 ################################################################################
+# ASYNC STUFF
+################################################################################
+def background(f):
+    def wrapped(*args, **kwargs):
+        return asyncio.get_event_loop().run_in_executor(None, f, *args, **kwargs)
+
+    return wrapped
+
+################################################################################
 # DEPENDENCY RESOLUTION
 ################################################################################
 if DEPENDENCIES != "":
@@ -278,44 +288,48 @@ if EXTRA_BUILD_COMMAND != '':
 ################################################################################
 # BUILD OBJECTS
 ################################################################################
-if TYPE in [ 'executable', 'static', 'shared' ]:
-    source_files = [ f for f in pathlib.Path(SOURCE_FOLDER).glob('**/*.c') if f.is_file() ]
-    for source in source_files:
-        normalized_source_name = ''.join([x if x.isalnum() else '_' for x in str(source)]) # Trims all the non alphanumeric characters
+@background
+def compile_source(source):
+    normalized_source_name = ''.join([x if x.isalnum() else '_' for x in str(source)]) # Trims all the non alphanumeric characters
 
-        compilation_command = "%s -c %s -o %s/%s.o %s" % (
-            CC, source, BUILD_OBJECTS_FOLDER, 
-            normalized_source_name,
-            EXTRA_BUILD_ARGS
-        )
-        compilation_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
+    compilation_command = "%s -c %s -o %s/%s.o %s" % (
+        CC, source, BUILD_OBJECTS_FOLDER, 
+        normalized_source_name,
+        EXTRA_BUILD_ARGS
+    )
+    compilation_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
 
-        expand_command = '%s -E -c %s' % (
-            PP, source
-        )
-        expand_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
-        error_code, result = subprocess.getstatusoutput(expand_command)
-        if error_code == 0:
-            hash = hashlib.md5((OPT_LEVEL + result).encode('utf-8')).hexdigest()
-            hash_file = pathlib.Path(CWD + '/' + BUILD_HASHS_FOLDER + '/' + normalized_source_name + '.md5')
-            if os.path.isfile(hash_file):
-                f = open(hash_file, 'r')
-                if f.read() == hash:
-                    f.close()
-                    logger.debug('Skipping compilation of file %s: Incremental cache matches' % source)
-                    continue
+    expand_command = '%s -E -c %s' % (
+        PP, source
+    )
+    expand_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
+    error_code, result = subprocess.getstatusoutput(expand_command)
+    if error_code == 0:
+        hash = hashlib.md5((OPT_LEVEL + result).encode('utf-8')).hexdigest()
+        hash_file = pathlib.Path(CWD + '/' + BUILD_HASHS_FOLDER + '/' + normalized_source_name + '.md5')
+        if os.path.isfile(hash_file):
+            f = open(hash_file, 'r')
+            if f.read() == hash:
                 f.close()
-
-            f = open(hash_file, 'w')
-            f.truncate(0)
-            f.write(hash)
+                logger.debug('Skipping compilation of file %s: Incremental cache matches' % source)
+                return
             f.close()
 
+        f = open(hash_file, 'w')
+        f.truncate(0)
+        f.write(hash)
+        f.close()
 
-        logger.info('Compiling file "%s"...' % source)
-        logger.debug('Using command %s' % compilation_command)
-        if os.system(compilation_command) != 0:
-            logger.critical('Compilation failed for file "%s"' % source); sys.exit(-1)
+
+    logger.info('Compiling file "%s"...' % source)
+    logger.debug('Using command %s' % compilation_command)
+    if os.system(compilation_command) != 0:
+        logger.critical('Compilation failed for file "%s"' % source); sys.exit(-1)
+
+if TYPE in [ 'executable', 'static', 'shared' ]:
+    source_files = [ f for f in pathlib.Path(SOURCE_FOLDER).glob('**/*.c') if f.is_file() ]
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.gather(*[compile_source(s) for s in source_files]))
 
 ################################################################################
 # LINK OBJECTS
