@@ -5,3 +5,4 @@ build
 **/*.md5
 **/*.o
 **/*.a
+modules/vulkan/lib/darwin/libvulkan.dylib

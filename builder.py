@@ -97,8 +97,10 @@ DEPENDENCIES        = ""
 LIBRARIES           = ""
 EXTRA_BUILD_ARGS    = ""
 EXTRA_LINK_ARGS     = ""
+EXTRA_SETUP_COMMAND = ""
 EXTRA_CLEAN_COMMAND = ""
 EXTRA_BUILD_COMMAND = ""
+EXTRA_POST_BUILD_COMMAND = ""
 
 for section in sections_to_check:
     if not config.has_section(section):
@@ -117,8 +119,10 @@ for section in sections_to_check:
     LIBRARIES           += ((', ' if LIBRARIES        != '' else '') + temp) if (temp :=config.get(section, 'libraries'          , fallback="")) != "" else ''
     EXTRA_BUILD_ARGS    += ((' '  if EXTRA_BUILD_ARGS != '' else '') + temp) if (temp :=config.get(section, 'extra_build_args'   , fallback="")) != "" else ''
     EXTRA_LINK_ARGS     += ((' '  if EXTRA_LINK_ARGS  != '' else '') + temp) if (temp :=config.get(section, 'extra_link_args'    , fallback="")) != "" else ''
-    EXTRA_CLEAN_COMMAND += temp if (temp := config.get(section, 'extra_clean_command', fallback="")) != "" else EXTRA_CLEAN_COMMAND
-    EXTRA_BUILD_COMMAND += temp if (temp := config.get(section, 'extra_build_command', fallback="")) != "" else EXTRA_BUILD_COMMAND
+    EXTRA_SETUP_COMMAND = temp if (temp := config.get(section, 'extra_setup_command', fallback="")) != "" else EXTRA_SETUP_COMMAND
+    EXTRA_CLEAN_COMMAND = temp if (temp := config.get(section, 'extra_clean_command', fallback="")) != "" else EXTRA_CLEAN_COMMAND
+    EXTRA_BUILD_COMMAND = temp if (temp := config.get(section, 'extra_build_command', fallback="")) != "" else EXTRA_BUILD_COMMAND
+    EXTRA_POST_BUILD_COMMAND = temp if (temp := config.get(section, 'extra_post_build_command', fallback="")) != "" else EXTRA_POST_BUILD_COMMAND
 
 if PP == '':
     PP = CC
@@ -151,7 +155,14 @@ if EXTRA_BUILD_ARGS != '':
     logger.info('\tEXTRA_BUILD_ARGS: %s' % EXTRA_BUILD_ARGS)
 if EXTRA_LINK_ARGS != '':
     logger.info('\tEXTRA_LINK_ARGS:  %s' % EXTRA_LINK_ARGS)
-
+if EXTRA_SETUP_COMMAND != '':
+    logger.info('\tEXTRA_SETUP_COMMAND: %s' % EXTRA_SETUP_COMMAND)
+if EXTRA_CLEAN_COMMAND != '':
+    logger.info('\tEXTRA_CLEAN_COMMAND: %s' % EXTRA_CLEAN_COMMAND)
+if EXTRA_BUILD_COMMAND != '':
+    logger.info('\tEXTRA_BUILD_COMMAND: %s' % EXTRA_BUILD_COMMAND)
+if EXTRA_POST_BUILD_COMMAND != '':
+    logger.info('\EXTRA_POST_BUILD_COMMAND_COMMAND: %s' % EXTRA_POST_BUILD_COMMAND)
 
 ################################################################################
 # CONFIGURATION CHECKS
@@ -197,8 +208,6 @@ if TYPE == 'script':
         logger.critical('The configuration cannot declare PP if TYPE is "script"')              ; sys.exit(-1)
     if OUTPUT_FILE != "":
         logger.critical('The configuration cannot declare OUTPUT_FILE if TYPE is "script"')     ; sys.exit(-1)
-    if TYPE != "":
-        logger.critical('The configuration cannot declare TYPE if TYPE is "script"')            ; sys.exit(-1)
     if SOURCE_FOLDER != "":
         logger.critical('The configuration cannot declare SOURCE_FOLDER if TYPE is "script"')   ; sys.exit(-1)
     if INCLUDE_FOLDERS != "":
@@ -211,8 +220,6 @@ if TYPE == 'script':
         logger.critical('The configuration cannot declare EXTRA_BUILD_ARGS if TYPE is "script"'); sys.exit(-1)
     if EXTRA_LINK_ARGS != "":
         logger.critical('The configuration cannot declare EXTRA_LINK_ARGS if TYPE is "script"') ; sys.exit(-1)
-    if EXTRA_BUILD_COMMAND == '':
-        logger.critical('The configuration does not include a EXTRA_BUILD_COMMAND')             ; sys.exit(-1);
 
 if OPERATION == 'priv_resolve_dependency':
     if DEPENDENCIES != "":
@@ -221,8 +228,11 @@ if OPERATION == 'priv_resolve_dependency':
 ################################################################################
 # FOLDER CHECKS
 ################################################################################
+if BUILD_FOLDER == '':
+    BUILD_FOLDER = 'build'
 BUILD_OBJECTS_FOLDER = BUILD_FOLDER + '/' + '.objs'
 BUILD_HASHS_FOLDER = BUILD_FOLDER + '/' + '.hashs'
+BUILD_CACHE_FOLDER = BUILD_FOLDER + '/' + '.cache'
 
 if not os.path.exists(BUILD_FOLDER):
     os.mkdir(BUILD_FOLDER)
@@ -230,6 +240,8 @@ if not os.path.exists(BUILD_OBJECTS_FOLDER):
     os.mkdir(BUILD_OBJECTS_FOLDER)
 if not os.path.exists(BUILD_HASHS_FOLDER):
     os.mkdir(BUILD_HASHS_FOLDER)
+if not os.path.exists(BUILD_CACHE_FOLDER):
+    os.mkdir(BUILD_CACHE_FOLDER)
 
 if DEPENDENCIES != "":
     for dependency in map(lambda x: x.strip(), DEPENDENCIES.split(',')):
@@ -269,7 +281,10 @@ if OPERATION == 'clean':
         os.remove(f)
     for f in pathlib.Path(BUILD_HASHS_FOLDER).glob('*.md5'):
         os.remove(f)
+    for f in pathlib.Path(BUILD_CACHE_FOLDER).glob('*.cache'):
+        os.remove(f)
 
+    logger.info('Running external clean setup...')
     if EXTRA_CLEAN_COMMAND != "":
         if os.system(EXTRA_CLEAN_COMMAND):
             logger.critical('External clean command failed'); sys.exit(-1)
@@ -280,10 +295,18 @@ if OPERATION == 'clean':
 ################################################################################
 # EXTERNAL BUILD
 ################################################################################
+if EXTRA_SETUP_COMMAND != '':
+    cache_path = '%s/%s_external_setup_complete.cache' % (BUILD_CACHE_FOLDER, OPT_LEVEL)
+    if not os.path.isfile(cache_path):
+        logger.info('Running external setup command...')
+        if os.system(EXTRA_SETUP_COMMAND) != 0:
+            logger.critical('External setup command failed'); sys.exit(-1)
+        open(cache_path, 'w').close()
+    
 if EXTRA_BUILD_COMMAND != '':
-    logging.info('Running external build command...')
+    logger.info('Running external build command...')
     if os.system(EXTRA_BUILD_COMMAND) != 0:
-            logger.critical('External build command failed'); sys.exit(-1)
+        logger.critical('External build command failed'); sys.exit(-1)
 
 ################################################################################
 # BUILD OBJECTS
@@ -335,8 +358,6 @@ if TYPE in [ 'executable', 'static', 'shared' ]:
 # LINK OBJECTS
 ################################################################################
 if TYPE in [ 'executable', 'dynamic' ]:
-    print(EXTRA_LINK_ARGS)
-
     link_command = '%s %s -o %s/%s %s' % (
         LINK, 
         '-shared' if TYPE == 'dynamic' else '',
@@ -361,6 +382,14 @@ elif TYPE == 'static':
     logger.debug('Using command %s' % ar_command)
     if os.system(ar_command) != 0:
         logger.critical('Archiving failed for project "%s"' % OUTPUT_FILE); sys.exit(-1)
+
+################################################################################
+# POST BUILD
+################################################################################
+if EXTRA_POST_BUILD_COMMAND != '':
+    logger.info('Running external post build command...')
+    if os.system(EXTRA_POST_BUILD_COMMAND) != 0:
+        logger.critical('External post build command failed'); sys.exit(-1)
 
 ################################################################################
 # TESTING
