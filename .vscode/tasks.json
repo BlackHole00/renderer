@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "unix-build",
+            "type": "shell",
+            "command": "./builder.py build debug"
+        },
+        {
+            "label": "windows-build",
+            "type": "shell",
+            "command": "builder.py build debug"
+        },
+    ]
+}

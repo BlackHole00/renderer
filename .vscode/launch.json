@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Unix - Debug Engine",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/renderer.out",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            // "preLaunchTask": "unix-build"
+        },
+        {
+            "name": "Windows - Debug Engine",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/renderer.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            // "preLaunchTask": "windows-build"
+        },
+    ]
+}
