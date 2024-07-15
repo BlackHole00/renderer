@@ -6,16 +6,27 @@ static bool gfx_vkinstance_check_extension_support(
     const gfx_VkInstanceProber* prober, 
     Slice(gfx_VkInitializationExtension) extensions,
     Slice(rawstring)* valid_extensions,
-    Allocator allocator
+    Context* context
 ) {
-	Vector(rawstring) tmp_valid_extensions = vector_make(rawstring)(allocator);
+	Vector(rawstring) tmp_valid_extensions = vector_make(rawstring)(context->allocator);
 	bool has_invalid_extensions = false;
+
+	log_trace(context, "Checking for Vulkan instance extensions compatibility...");
 
 	for (usize i = 0; i < extensions.length; i++) {
 		gfx_VkInitializationExtension extension = extensions.data[i];
 		bool valid = gfx_vkinstanceprober_is_extension_supported(prober, extension.name);
 
-		if (!valid && extension.critical) {
+		if (!valid && !extension.critical) {
+			log_warn(context,
+			    "Non critical required instance extension %s is not present",
+			    extension.name
+			);
+		} else if (!valid && extension.critical) {
+			log_error(context,
+			    "Critical required instance extension %s is not present",
+			    extension.name
+			);
 			has_invalid_extensions = true;
 		} else if (valid) {
 			// TODO(Vicix): Fix memory management
@@ -31,18 +42,27 @@ static bool gfx_vkinstance_check_layer_support(
     const gfx_VkInstanceProber* prober, 
     Slice(gfx_VkInitializationLayer) layers,
     Slice(rawstring)* valid_layers,
-    Allocator allocator
+    Context* context
 ) {
-	Vector(rawstring) tmp_valid_layers = vector_make(rawstring)(allocator);
+	Vector(rawstring) tmp_valid_layers = vector_make(rawstring)(context->allocator);
 	bool has_invalid_layers = false;
+
+	log_trace(context, "Checking for Vulkan instance layers compatibility...");
 
 	for (usize i = 0; i < layers.length; i++) {
 		gfx_VkInitializationLayer layer = layers.data[i];
 		bool valid = gfx_vkinstanceprober_is_layer_supported(prober, layer.name);
 
-		printf("%s %d", layer.name, valid);
-
-		if (!valid && layer.critical) {
+		if (!valid && !layer.critical) {
+			log_warn(context,
+			    "Non critical required instance layer %s is not present",
+			    layer.name
+			);
+		} else if (!valid && layer.critical) {
+			log_error(context,
+			    "Critical required instance layer %s is not present",
+			    layer.name
+			);
 			has_invalid_layers = true;
 		} else if (valid) {
 			// TODO(Vicix): Fix memory management
@@ -57,6 +77,29 @@ static bool gfx_vkinstance_check_layer_support(
 gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx_VkInstance)* descriptor, Context* context) {
 	gfx_Result result;
 
+	log_trace(context, "Creating a gfx_VkInstance for descriptor:");
+	log_trace(context, "\t-application_name: %s", descriptor->application_name);
+	log_trace(context, "\t-application_version: %x", descriptor->application_version);
+	log_trace(context, "\t-engine_name: %s", descriptor->engine_name);
+	log_trace(context, "\t-engine_version: %x", descriptor->engine_version);
+	log_trace(context, "\t-requested_version: %x", descriptor->requested_version);
+	log_trace(context, "\t-requested_extensions:");
+	for (usize i = 0; i < descriptor->requested_extensions.length; i++){
+		gfx_VkInitializationExtension* extension = &descriptor->requested_extensions.data[i];
+		log_trace(context, "\t\t%c: %s", 
+			(extension->critical ? '*' : '-'),
+			extension->name
+		);
+	}
+	log_trace(context, "\t-requested_layers:");
+	for (usize i = 0; i < descriptor->requested_layers.length; i++){
+		gfx_VkInitializationLayer* layer = &descriptor->requested_layers.data[i];
+		log_trace(context, "\t\t%c: %s", 
+			(layer->critical ? '*' : '-'),
+			layer->name
+		);
+	}
+
 	gfx_VkInstanceProber prober;
 	result = gfx_vkinstanceprober_make(&prober, context->allocator);
 	if (result != GFX_SUCCESS) {
@@ -65,15 +108,22 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 
 	gfx_vkinstanceprober_report(&prober, context->logger);
 
+	log_debug(context, "Checking Vulkan instance compatibility against descriptor...");
 	if (!gfx_vkinstanceprober_is_version_supported(&prober, descriptor->requested_version)) {
+		log_error(context,
+			"gfx_VkInstance creation failed: Unsupported vulkan version. Required version %x, found version %x",
+			descriptor->requested_version,
+			prober.supported_vulkan_version
+		);
 		return GFX_UNSUPPORTED_VK_VERSION;
 	}
 	if (!gfx_vkinstance_check_extension_support(
 	    &prober, 
 	    descriptor->requested_extensions, 
 	    &instance->enabled_extensions, 
-	    context->allocator)
+	    context)
 	) {
+		log_error(context, "gfx_VkInstance creation failed: Found unsupported Vulkan extension");
 		result = GFX_UNSUPPORTED_VK_INSTANCE_EXTENSION;
 		goto error;
 	}
@@ -81,8 +131,9 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	    &prober, 
 	    descriptor->requested_layers, 
 	    &instance->enabled_layers, 
-	    context->allocator)
+	    context)
 	) {
+		log_error(context, "gfx_VkInstance creation failed: Found unsupported Vulkan layer");
 		result = GFX_UNSUPPORTED_VK_INSTANCE_LAYER;
 		goto error;
 	}
@@ -106,12 +157,14 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 		.ppEnabledLayerNames = (const char**)(instance->enabled_layers.data)
 	};
 
+	log_debug(context, "Creating Vulkan instance...");
 	result = (gfx_Result)(vkCreateInstance(
          &instance_info, 
          nullptr, 
          &instance->instance
     ));
 	if (result != GFX_SUCCESS) {
+		log_error(context, "gfx_VkInstance creation failed: Could not create a Vulkan instance (error code: %d)", result);
 		return result;
 	}
 
@@ -131,5 +184,6 @@ void gfx_vkinstance_delete(const gfx_VkInstance* instance) {
 	slice_delete(rawstring)(instance->enabled_extensions, instance->context->allocator);
 	slice_delete(rawstring)(instance->enabled_layers, instance->context->allocator);
 
+	log_trace(instance->context, "Destroying Vulkan instance...");
 	vkDestroyInstance(instance->instance, nullptr);
 }

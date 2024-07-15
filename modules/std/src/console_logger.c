@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-static void consolelogger_log(void* logger_data, LogLevel level, rawstring message, SourceCodeLocation location) {
+static void consolelogger_log(void*, LogLevel level, rawstring message, SourceCodeLocation location) {
 	printf("[%s%s%s] %s:%lu\t: %s\n", 
 		LOG_LEVEL_ESCAPE_COLORS[level], 
 		LOG_LEVEL_NAMES[level], 
@@ -13,7 +13,7 @@ static void consolelogger_log(void* logger_data, LogLevel level, rawstring messa
 	);
 }
 
-static void consolelogger_flush(void* logger_data) {
+static void consolelogger_flush(void*) {
 	fflush(stdout);
 }
 

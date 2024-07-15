@@ -21,7 +21,6 @@ static const gfx_VkInitializationLayer GFX_INSTANCE_BASE_LAYERS[] = {
 	// EMPTY_LAYER
 };
 static const gfx_VkInitializationLayer GFX_INSTANCE_BASE_DEBUG_LAYERS[] = {
-	(gfx_VkInitializationLayer){ "MoltenVK", false },
 	(gfx_VkInitializationLayer){ "VK_LAYER_KHRONOS_validation", false }
 };
 
@@ -75,6 +74,12 @@ static Slice(gfx_VkInitializationLayer) gfx_instance_get_initialization_layers(b
 gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Context* context) {
 	gfx_Result result = GFX_SUCCESS;
 
+	log_info(context, "Initializing gfx-hal instance...");
+	log_trace(context, "Using descriptor:");
+	log_trace(context, "\t-application_name: %s", descriptor->application_name);
+	log_trace(context, "\t-application_version: %x", descriptor->application_version);
+	log_trace(context, "\t-enable_debug: %d", descriptor->enable_debug);
+
 	Slice(gfx_VkInitializationExtension) extensions = gfx_instance_get_initialization_extensions(descriptor->enable_debug, context->allocator);
 	Slice(gfx_VkInitializationLayer) layers = gfx_instance_get_initialization_layers(descriptor->enable_debug);
 
@@ -88,6 +93,7 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
 		.requested_version = gfx_version_make(1, 2, 0),
 	};
 
+	log_debug(context, "Creating a gfx_VkInstance...");
 	singleton_of(gfx_Instance).context = context;
 	singleton_of(gfx_Instance).debug_enabled = descriptor->enable_debug;
 	result = gfx_vkinstance_make(
@@ -95,6 +101,9 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
          &instance_descriptor, 
          context
      );
+	if (result != GFX_SUCCESS) {
+		log_error(context, "gfx-hal instance initialization failed: Could not create a gfx_VkInstance");
+	}
 
 	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
 	return result;

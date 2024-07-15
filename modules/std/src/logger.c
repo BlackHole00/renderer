@@ -11,7 +11,6 @@ const rawstring* LOG_LEVEL_NAMES = (const rawstring[]){
 	[LOG_LEVEL_TRACE] = "TRACE"
 };
 
-// TODO(Vicix): Implement Color Codes
 const rawstring* LOG_LEVEL_ESCAPE_COLORS = (const rawstring[]){
 	[LOG_LEVEL_FATAL] = "\033[31m",
 	[LOG_LEVEL_ERROR] = "\033[91m",
@@ -21,7 +20,6 @@ const rawstring* LOG_LEVEL_ESCAPE_COLORS = (const rawstring[]){
 	[LOG_LEVEL_TRACE] = "\033[37m"
 };
 
-// TODO(Vicix): Implement Color Codes
 const rawstring LOG_DEFAULT_TEXT_ESCAPE_COLOR = "\033[0m";
 
 void logger_log_ex(SourceCodeLocation location, Logger logger, LogLevel level, rawstring format, va_list args) {

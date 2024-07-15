@@ -12,7 +12,7 @@ void show_banner(Logger logger) {
 
 int main(void) {
 	Allocator allocator = singleton_of(SystemAllocator);
-	Logger logger = consolelogger_make(LOG_LEVEL_TRACE, allocator);
+	Logger logger = consolelogger_make(LOG_LEVEL_DEBUG, allocator);
 	Context context = (Context){
 		.allocator = allocator,
 		.logger = logger,
