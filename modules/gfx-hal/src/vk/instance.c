@@ -15,6 +15,10 @@ static bool gfx_vkinstance_check_extension_support(
 
 	for (usize i = 0; i < extensions.length; i++) {
 		gfx_VkInitializationExtension extension = extensions.data[i];
+		if (extension.name == nullptr) {
+			continue;
+		}
+
 		bool valid = gfx_vkinstanceprober_is_extension_supported(prober, extension.name);
 
 		if (!valid && !extension.critical) {
@@ -51,6 +55,10 @@ static bool gfx_vkinstance_check_layer_support(
 
 	for (usize i = 0; i < layers.length; i++) {
 		gfx_VkInitializationLayer layer = layers.data[i];
+		if (layer.name == nullptr) {
+			continue;
+		}
+
 		bool valid = gfx_vkinstanceprober_is_layer_supported(prober, layer.name);
 
 		if (!valid && !layer.critical) {
