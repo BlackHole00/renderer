@@ -8,6 +8,7 @@
 #include <std/lang/descriptor.h>
 #include <std/lang/vtable.h>
 #include <std/lang/comparators.h>
+#include <std/lang/cloners.h>
 #include <std/lang/lambda.h>
 #include <std/lang/mem.h>
 #include <std/lang/log.h>

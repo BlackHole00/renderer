@@ -1,5 +1,6 @@
 #include <gfx/hal/vk/instance.h>
 
+#include <gfx/hal/vk/debug_messenger.h>
 #include "instance_prober.h"
 
 static bool gfx_vkinstance_check_extension_support(
@@ -113,6 +114,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 			layer->name
 		);
 	}
+	log_trace(context, "\t- creation_debug_messenger: %p", (void*)(descriptor->creation_debug_messenger));
 
 	gfx_VkInstanceProber prober;
 	result = gfx_vkinstanceprober_make(&prober, context->allocator);
@@ -170,6 +172,21 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 		.enabledLayerCount = instance->enabled_layers.length,
 		.ppEnabledLayerNames = (const char**)(instance->enabled_layers.data)
 	};
+
+	if (descriptor->creation_debug_messenger != nullptr) {
+		rawstring debug_extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+		bool can_enable_debug_messenger = slice_contains_element(rawstring)(
+			instance->enabled_extensions, 
+			&debug_extension
+		);
+
+		if (can_enable_debug_messenger) {
+			VkDebugUtilsMessengerCreateInfoEXT messenger_info;
+			gfx_vkdebugmessenger_get_vulkan_createinfo(descriptor->creation_debug_messenger, &messenger_info);
+
+			instance_info.pNext = &messenger_info;
+		}
+	}
 
 	log_debug(context, "Creating Vulkan instance...");
 	log_trace(context, "Using VkInstanceCreateInfo:");

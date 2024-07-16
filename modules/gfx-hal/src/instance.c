@@ -2,7 +2,6 @@
 
 #include <glfw/glfw3.h>
 
-
 static const gfx_VkInitializationExtension GFX_INSTANCE_BASE_EXTENSIONS[] = {
 	(gfx_VkInitializationExtension){ VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME, false }
 };
@@ -105,6 +104,21 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
 		.requested_version = gfx_version_make(1, 2, 0),
 	};
 
+	if (descriptor->enable_debug) {
+		gfx_vkdebugmessenger_make(
+		    &singleton_of(gfx_Instance).debug_messenger,
+			&(descriptor_of(gfx_VkDebugMessenger)){
+				.allowed_message_types = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+    				VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+    				VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
+				    VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT,
+				.logger = context->logger
+			},
+			context->logger
+		);
+		instance_descriptor.creation_debug_messenger = &singleton_of(gfx_Instance).debug_messenger;
+	}
+
 	log_debug(context, "Creating a gfx_VkInstance...");
 	singleton_of(gfx_Instance).context = context;
 	singleton_of(gfx_Instance).debug_enabled = descriptor->enable_debug;
@@ -112,18 +126,43 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
          &singleton_of(gfx_Instance).instance, 
          &instance_descriptor, 
          context
-     );
+    );
 	if (result != GFX_SUCCESS) {
 		log_error(context, "gfx-hal instance initialization failed: Could not create a gfx_VkInstance");
+		goto vkinstance_error;
 	}
 
 	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
 	slice_delete(gfx_VkInitializationLayer)(layers, context->allocator);
 
+	if (descriptor->enable_debug) {
+		log_debug(context, "Attaching the gfx_VkDebugMessenger with the gfx_VkInstance...");
+		result = gfx_vkdebugmessenger_attach_to_instance(
+			&singleton_of(gfx_Instance).debug_messenger, 
+			&singleton_of(gfx_Instance).instance
+		);
+		if (result != GFX_SUCCESS) {
+			log_error(context, "gfx-hal instance initialization failed: Could not attache the gfx_VkDebugMessenger to the gfx_VkInstance");
+			goto vkdebugmessenger_error;
+		}
+	}
+
 	log_debug(context, "Successfully initialized the gfx-hal instance");
+	return result;
+
+vkinstance_error:
+	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
+	slice_delete(gfx_VkInitializationLayer)(layers, context->allocator);
+	return result;
+
+vkdebugmessenger_error:
+	gfx_vkinstance_delete(&singleton_of(gfx_Instance).instance);
 	return result;
 }
 
 void gfx_instance_deinit() {
+	if (singleton_of(gfx_Instance).debug_enabled) {
+		gfx_vkdebugmessenger_delete(&singleton_of(gfx_Instance).debug_messenger);
+	}
 	gfx_vkinstance_delete(&singleton_of(gfx_Instance).instance);
 }
