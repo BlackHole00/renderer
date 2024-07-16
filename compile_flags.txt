@@ -1,6 +1,11 @@
 -std=c23
 -Dnullptr=NULL
 -Dconstexpr=NULL
+-DBUILDER_DEBUG=1
+-DBUILDER_RELEASE=0
+-DBUILDER_OS=darwin
+-DBUILDER_ARCH=arm64
+-DBUILDER_BITS=64
 -Imodules/std/include
 -Imodules/glfw/include
 -Imodules/vulkan/include

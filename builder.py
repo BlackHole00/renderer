@@ -321,11 +321,26 @@ def compile_source(source):
         EXTRA_BUILD_ARGS
     )
     compilation_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
+    compilation_command += ' -D BUILDER_DEBUG=%d -D BUILDER_RELEASE=%d -D BUILDER_OS=%s -D BUILDER_ARCH=%s -D BUILDER_BITS=%s' % (
+        1 if OPT_LEVEL == 'debug' else 0,
+        1 if OPT_LEVEL == 'release' else 0,
+        platform.system().lower(),
+        architecture,
+        platform.architecture()[0]
+    )
 
     expand_command = '%s -E -c %s' % (
         PP, source
     )
     expand_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
+    expand_command += ' -D BUILDER_DEBUG=%d -D BUILDER_RELEASE=%d -D BUILDER_OS=%s -D BUILDER_ARCH=%s -D BUILDER_BITS=%s' % (
+        1 if OPT_LEVEL == 'debug' else 0,
+        1 if OPT_LEVEL == 'release' else 0,
+        platform.system().lower(),
+        architecture,
+        platform.architecture()[0]
+    )
+
     error_code, result = subprocess.getstatusoutput(expand_command)
     if error_code == 0:
         hash = hashlib.md5((OPT_LEVEL + result).encode('utf-8')).hexdigest()

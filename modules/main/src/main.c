@@ -35,7 +35,7 @@ int main(void) {
 	gfx_Result instance_init_result = gfx_instance_init(&(descriptor_of(gfx_Instance)){
 		.application_name = "Renderer",
 		.application_version = VK_MAKE_VERSION(0, 0, 1),
-		.enable_debug = true
+		.enable_debug = BUILDER_DEBUG
 	}, &context);
 	assert(instance_init_result == GFX_SUCCESS);
 	defer(gfx_instance_deinit());
