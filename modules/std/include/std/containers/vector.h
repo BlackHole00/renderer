@@ -1,6 +1,7 @@
 #pragma once
 
 #include <std/macro/macros.h>
+#include <std/lang/cloners.h>
 #include <std/runtime/slice.h>
 #include <std/runtime/optional.h>
 #include <std/runtime/allocator.h>
@@ -11,6 +12,7 @@ static const usize STD_DEFAULT_VECTOR_CAPACITY = 8;
 #define Vector(T) STD_CAT(Vector_, T)
 #define vector_make(T) STD_CAT(vector_, T, _make)
 #define vector_make_with_capacity(T) STD_CAT(vector_, T, _make_with_capacity)
+#define vector_clone(T) STD_CAT(vector_, T, _clone)
 #define vector_destroy(T) STD_CAT(vector_, T, _destroy)
 #define vector_reserve(T) STD_CAT(vector_, T, _reserve)
 #define vector_resize(T) STD_CAT(vector_, T, _resize)
@@ -50,6 +52,11 @@ static inline Vector(T) vector_make_with_capacity(T)(usize capacity, Allocator a
 } \
 static inline Vector(T) vector_make(T)(Allocator allocator) { \
 	return vector_make_with_capacity(T)(STD_DEFAULT_VECTOR_CAPACITY, allocator); \
+} \
+static inline Vector(T) vector_clone(T)(const Vector(T)* vector, Allocator allocator) { \
+	Vector(T) result = vector_make_with_capacity(T)(vector->length, allocator); \
+	memcpy(&result.data[0], &vector->data[0], sizeof(T) * vector->length); \
+	return result; \
 } \
 static inline void vector_destroy(T)(Vector(T)* vector) { \
 	Slice(byte) allocation = slice_as_bytes_slice(T)(vector->allocation); \
@@ -107,6 +114,12 @@ static inline void vector_insert(T)(Vector(T)* vector, usize index, T value) { \
 } \
 static inline Slice(T) vector_as_slice(T)(const Vector(T)* vector) { \
 	return slice_from(T)(vector->allocation.data, vector->length); \
+} \
+static inline void cloner_of(Vector(T))(const Vector(T)* source, Vector(T)* destination, Allocator allocator) { \
+	if (source == nullptr || destination == nullptr) { \
+		return; \
+	} \
+	*destination = vector_clone(T)(source, allocator); \
 }
 
 STD_DECLARE_VECTOR_OF(byte)

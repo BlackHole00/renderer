@@ -4,6 +4,7 @@
 #include <std/macro/macros.h>
 #include <std/lang/types.h>
 #include <std/lang/comparators.h>
+#include <std/lang/cloners.h>
 #include <std/runtime/allocator.h>
 #include <std/runtime/slice.h>
 #include <std/runtime/optional.h>
@@ -15,6 +16,8 @@
 #define slice_contains_element(T) STD_CAT(slice_, T, _contains_element)
 #define slice_index_of_element(T) STD_CAT(slice_, T, _index_of_element)
 #define slice_find_element(T) STD_CAT(slice_, T, _find_element)
+
+#define slice_deep_clone(T) STD_CAT(slice_, T, _deep_clone)
 
 #define STD_DECLARE_SLICE_MEM_UTILS_OF(T) \
 static inline Slice(T) slice_make(T)(usize length, Allocator allocator) { \
@@ -30,10 +33,17 @@ static inline void slice_delete(T)(Slice(T) slice, Allocator allocator) { \
 	if (!slice_is_null(T)) { \
 		allocator_dealloc(allocator, slice_as_bytes_slice(T)(slice)); \
 	} \
+} \
+static inline void cloner_of(Slice(T))(const Slice(T)* source, Slice(T)* destination, Allocator allocator) { \
+	if (source == nullptr || destination == nullptr) { \
+		return; \
+	} \
+	*destination = slice_clone(T)(*source, allocator); \
 }
 
 #define STD_DECLARE_SLICE_COMMON_UTILS_OF(T, T_equality_comparator) \
 static inline bool slice_contains_element(T)(Slice(T) slice, T* value) { \
+	static_typecheck(STD_EQUALITY_COMPARATOR_SIGNATURE(T), T_equality_comparator); \
 	for (usize i = 0; i < slice.length; i++) { \
 		if (T_equality_comparator(value, &slice.data[i])) { \
 			return true; \
@@ -56,6 +66,22 @@ static inline T* slice_find_element(T)(Slice(T) slice, T* value) { \
 		} \
 	} \
 	return nullptr; \
+}
+
+#define STD_DECLARE_SLICE_DEEP_CLONE(T, T_deep_cloner) \
+static inline Slice(T) slice_deep_clone(T)(Slice(T) source, Allocator allocator) { \
+	static_typecheck(STD_DEEP_CLONE_SIGNATURE(T), T_deep_cloner); \
+	Slice(T) result = slice_make(T)(source.length, allocator); \
+	for (usize i = 0; i < source.length; i++) { \
+		T_deep_cloner(&souce.data[i], &result.data[i], allocator); \
+	} \
+	return result; \
+} \
+static inline void deep_cloner_of(Slice(T))(const Slice(T)* source, Slice(T)* destination, Allocator allocator) { \
+	if (source == nullptr || destination == nullptr) { \
+		return; \
+	} \
+	*destination = slice_deep_clone(T)(*source, allocator); \
 }
 
 STD_DECLARE_SLICE_MEM_UTILS_OF(byte)

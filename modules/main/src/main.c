@@ -11,6 +11,7 @@ void show_banner(Logger logger) {
 }
 
 int main(void) {
+
 	Allocator allocator = singleton_of(SystemAllocator);
 	Logger logger = consolelogger_make(LOG_LEVEL_TRACE, allocator);
 	Context context = (Context){

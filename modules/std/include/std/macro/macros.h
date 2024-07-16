@@ -372,5 +372,6 @@
 
 #define STD_GET_ALL_BUT_LAST_VA_ARGS_WITH_COMMAS(...) STD_CAT(_STD_GET_ALL_BUT_LAST_VA_ARGS_ELEM_WITH_COMMAS_, STD_PREV(STD_COUNT_VA_ARGS(__VA_ARGS__)))(__VA_ARGS__)
 
-#define static_typecheck(_type, _x) ((void)(_Generic(_x, _type: 0)))
+// #define static_typecheck(_type, _x) (_Generic(_x, _type: 0))
+#define static_typecheck(...) ((void)(_Generic(STD_GET_LAST_VA_ARGS(__VA_ARGS__), STD_GET_ALL_BUT_LAST_VA_ARGS_WITH_COMMAS(__VA_ARGS__): 0)))
 

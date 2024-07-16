@@ -5,8 +5,8 @@
 #include <vulkan/vulkan.h>
 
 static inline bool equality_comparator_of(VkExtensionProperties)(
-    VkExtensionProperties* left, 
-    VkExtensionProperties* right
+    const VkExtensionProperties* left, 
+    const VkExtensionProperties* right
 ) {
 	return left->specVersion == right->specVersion && equality_comparator(rawstring)(
 		(rawstring*)(&left->extensionName), 
@@ -15,8 +15,8 @@ static inline bool equality_comparator_of(VkExtensionProperties)(
 }
 
 static inline bool equality_comparator_of(VkLayerProperties)(
-    VkLayerProperties* left, 
-    VkLayerProperties* right
+    const VkLayerProperties* left, 
+    const VkLayerProperties* right
 ) {
 	return left->specVersion == right->specVersion && 
 	    left->implementationVersion == right->implementationVersion &&
