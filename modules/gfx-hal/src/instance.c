@@ -86,11 +86,11 @@ static Slice(gfx_VkInitializationLayer) gfx_instance_get_initialization_layers(b
 gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Context* context) {
 	gfx_Result result = GFX_SUCCESS;
 
-	log_info(context, "Initializing gfx-hal instance...");
+	log_info(context, "Initializing the gfx-hal instance...");
 	log_trace(context, "Using descriptor:");
-	log_trace(context, "\t-application_name: %s", descriptor->application_name);
-	log_trace(context, "\t-application_version: %x", descriptor->application_version);
-	log_trace(context, "\t-enable_debug: %d", descriptor->enable_debug);
+	log_trace(context, "\t- application_name: %s", descriptor->application_name);
+	log_trace(context, "\t- application_version: %x", descriptor->application_version);
+	log_trace(context, "\t- enable_debug: %d", descriptor->enable_debug);
 
 	Slice(gfx_VkInitializationExtension) extensions = gfx_instance_get_initialization_extensions(descriptor->enable_debug, context->allocator);
 	Slice(gfx_VkInitializationLayer) layers = gfx_instance_get_initialization_layers(descriptor->enable_debug, context->allocator);
@@ -119,6 +119,8 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
 
 	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
 	slice_delete(gfx_VkInitializationLayer)(layers, context->allocator);
+
+	log_debug(context, "Successfully initialized the gfx-hal instance");
 	return result;
 }
 

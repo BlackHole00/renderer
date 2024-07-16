@@ -22,7 +22,7 @@ static inline void shallow_cloner_of(rawstring)(const rawstring* source, rawstri
 	}
 
 	usize source_len = strlen(*source);
-	*destination = allocator_alloc_single(allocator, source_len);
+	*destination = allocator_alloc_single(allocator, source_len + 1);
 	memcpy(*destination, *source, source_len);
 }
 

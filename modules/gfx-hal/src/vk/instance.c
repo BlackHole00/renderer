@@ -33,8 +33,11 @@ static bool gfx_vkinstance_check_extension_support(
 			);
 			has_invalid_extensions = true;
 		} else if (valid) {
-			// TODO(Vicix): Fix memory management
-			vector_append(rawstring)(&tmp_valid_extensions, extension.name);
+			// TODO(Vicix): Use a static arena
+			rawstring extension_name;
+			clone(rawstring)(&extension.name, &extension_name, context->allocator);
+
+			vector_append(rawstring)(&tmp_valid_extensions, extension_name);
 		}
 	}
 
@@ -73,8 +76,11 @@ static bool gfx_vkinstance_check_layer_support(
 			);
 			has_invalid_layers = true;
 		} else if (valid) {
-			// TODO(Vicix): Fix memory management
-			vector_append(rawstring)(&tmp_valid_layers, layer.name);
+			// TODO(Vicix): Use a static arena
+			rawstring layer_name;
+			clone(rawstring)(&layer.name, &layer_name, context->allocator);
+
+			vector_append(rawstring)(&tmp_valid_layers, layer_name);
 		}
 	}
 
@@ -86,12 +92,12 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	gfx_Result result;
 
 	log_trace(context, "Creating a gfx_VkInstance for descriptor:");
-	log_trace(context, "\t-application_name: %s", descriptor->application_name);
-	log_trace(context, "\t-application_version: %x", descriptor->application_version);
-	log_trace(context, "\t-engine_name: %s", descriptor->engine_name);
-	log_trace(context, "\t-engine_version: %x", descriptor->engine_version);
-	log_trace(context, "\t-requested_version: %x", descriptor->requested_version);
-	log_trace(context, "\t-requested_extensions:");
+	log_trace(context, "\t- application_name: %s", descriptor->application_name);
+	log_trace(context, "\t- application_version: %x", descriptor->application_version);
+	log_trace(context, "\t- engine_name: %s", descriptor->engine_name);
+	log_trace(context, "\t- engine_version: %x", descriptor->engine_version);
+	log_trace(context, "\t- requested_version: %x", descriptor->requested_version);
+	log_trace(context, "\t- requested_extensions:");
 	for (usize i = 0; i < descriptor->requested_extensions.length; i++){
 		gfx_VkInitializationExtension* extension = &descriptor->requested_extensions.data[i];
 		log_trace(context, "\t\t%c: %s", 
@@ -166,6 +172,29 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	};
 
 	log_debug(context, "Creating Vulkan instance...");
+	log_trace(context, "Using VkInstanceCreateInfo:");
+	log_trace(context, "\t- sType: %x", instance_info.sType);
+	log_trace(context, "\t- pNext: %p", instance_info.pNext);
+	log_trace(context, "\t- flags: %x", instance_info.flags);
+	log_trace(context, "\t- pApplicationInfo: %p", (void*)(instance_info.pApplicationInfo));
+	log_trace(context, "\t\t- sType: %x", instance_info.pApplicationInfo->sType);
+	log_trace(context, "\t\t- pNext: %p", (void*)(instance_info.pApplicationInfo->pNext));
+	log_trace(context, "\t\t- pApplicationName: %s", instance_info.pApplicationInfo->pApplicationName);
+	log_trace(context, "\t\t- pApplicationVersion: %x", instance_info.pApplicationInfo->applicationVersion);
+	log_trace(context, "\t\t- pEngineName: %s", instance_info.pApplicationInfo->pEngineName);
+	log_trace(context, "\t\t- pEngineVersion: %x", instance_info.pApplicationInfo->engineVersion);
+	log_trace(context, "\t\t- apiVersion: %x", instance_info.pApplicationInfo->apiVersion);
+	log_trace(context, "\t- enabledExtensionCount: %d", instance_info.enabledExtensionCount);
+	log_trace(context, "\t- ppEnabledExtensionNames: %p", (void*)(instance_info.ppEnabledExtensionNames));
+	for (usize i = 0; i < instance_info.enabledExtensionCount; i++) {
+		log_trace(context, "\t\t- %s", instance_info.ppEnabledExtensionNames[i]);
+	}
+	log_trace(context, "\t- enabledLayerCount: %d", instance_info.enabledLayerCount);
+	log_trace(context, "\t- ppEnabledLayerNames: %p", (void*)(instance_info.ppEnabledLayerNames));
+	for (usize i = 0; i < instance_info.enabledLayerCount; i++) {
+		log_trace(context, "\t\t- %s", instance_info.ppEnabledLayerNames[i]);
+	}
+
 	result = (gfx_Result)(vkCreateInstance(
          &instance_info, 
          nullptr, 
@@ -173,25 +202,40 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
     ));
 	if (result != GFX_SUCCESS) {
 		log_error(context, "gfx_VkInstance creation failed: Could not create a Vulkan instance (error code: %d)", result);
-		return result;
+		goto error;
 	}
 
 	instance->context = context;
 	instance->supported_version = descriptor->requested_version;
 
+	log_debug(context, "Successfully created a gfx_VkInstance");
 	return GFX_SUCCESS;
 
 error:
+	for (usize i = 0; i < instance->enabled_extensions.length; i++) {
+		allocator_dealloc_single(context->allocator, instance->enabled_extensions.data[i]);
+	}
 	slice_delete(rawstring)(instance->enabled_extensions, context->allocator);
+	for (usize i = 0; i < instance->enabled_layers.length; i++) {
+		allocator_dealloc_single(context->allocator, instance->enabled_layers.data[i]);
+	}
 	slice_delete(rawstring)(instance->enabled_layers, context->allocator);
 
 	return result;
 }
 
 void gfx_vkinstance_delete(const gfx_VkInstance* instance) {
-	slice_delete(rawstring)(instance->enabled_extensions, instance->context->allocator);
-	slice_delete(rawstring)(instance->enabled_layers, instance->context->allocator);
+	Context* context = instance->context;
 
-	log_trace(instance->context, "Destroying Vulkan instance...");
+	for (usize i = 0; i < instance->enabled_extensions.length; i++) {
+		allocator_dealloc_single(context->allocator, instance->enabled_extensions.data[i]);
+	}
+	slice_delete(rawstring)(instance->enabled_extensions, context->allocator);
+	for (usize i = 0; i < instance->enabled_layers.length; i++) {
+		allocator_dealloc_single(context->allocator, instance->enabled_layers.data[i]);
+	}
+	slice_delete(rawstring)(instance->enabled_layers, context->allocator);
+
+	log_trace(context, "Destroying Vulkan instance...");
 	vkDestroyInstance(instance->instance, nullptr);
 }
