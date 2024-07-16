@@ -13,7 +13,7 @@ static const usize STD_DEFAULT_VECTOR_CAPACITY = 8;
 #define vector_make(T) STD_CAT(vector_, T, _make)
 #define vector_make_with_capacity(T) STD_CAT(vector_, T, _make_with_capacity)
 #define vector_clone(T) STD_CAT(vector_, T, _clone)
-#define vector_destroy(T) STD_CAT(vector_, T, _destroy)
+#define vector_delete(T) STD_CAT(vector_, T, _delete)
 #define vector_reserve(T) STD_CAT(vector_, T, _reserve)
 #define vector_resize(T) STD_CAT(vector_, T, _resize)
 #define vector_is_index_valid(T) STD_CAT(vector_, T, _is_index_valid)
@@ -58,7 +58,7 @@ static inline Vector(T) vector_clone(T)(const Vector(T)* vector, Allocator alloc
 	memcpy(&result.data[0], &vector->data[0], sizeof(T) * vector->length); \
 	return result; \
 } \
-static inline void vector_destroy(T)(Vector(T)* vector) { \
+static inline void vector_delete(T)(Vector(T)* vector) { \
 	Slice(byte) allocation = slice_as_bytes_slice(T)(vector->allocation); \
 	allocator_dealloc(vector->allocator, allocation); \
 	vector->length = 0; \
