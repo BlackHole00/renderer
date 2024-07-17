@@ -16,6 +16,7 @@ ArenaAllocatorPage arenaallocatorpage_create() {
 
 	page.contents->next_page = nullptr;
 	page.contents->first_free_index = 0;
+	page.contents->page_size = PAGE_SIZE;
 
 	return page;
 }

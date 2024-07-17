@@ -163,26 +163,26 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
 		.pApplicationInfo = &application_info,
-		// .enabledExtensionCount = instance->enabled_extensions.length,
-		// .ppEnabledExtensionNames = (const char**)instance->enabled_extensions.data,
-		// .enabledlayercount = instance->enabled_layers.length,
-		// .ppenabledlayernames = (const char**)(instance->enabled_layers.data)
+		.enabledExtensionCount = instance->enabled_extensions.length,
+		.ppEnabledExtensionNames = (const char**)instance->enabled_extensions.data,
+		.enabledLayerCount = instance->enabled_layers.length,
+		.ppEnabledLayerNames = (const char**)(instance->enabled_layers.data)
 	};
 
-	// if (descriptor->creation_debug_messenger != nullptr) {
-	// 	rawstring debug_extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-	// 	bool can_enable_debug_messenger = slice_contains_element(rawstring)(
-	// 		instance->enabled_extensions, 
-	// 		&debug_extension
-	// 	);
+	if (descriptor->creation_debug_messenger != nullptr) {
+		rawstring debug_extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+		bool can_enable_debug_messenger = slice_contains_element(rawstring)(
+			instance->enabled_extensions, 
+			&debug_extension
+		);
 
-	// 	if (can_enable_debug_messenger) {
-	// 		VkDebugUtilsMessengerCreateInfoEXT messenger_info;
-	// 		gfx_vkdebugmessenger_get_vulkan_createinfo(descriptor->creation_debug_messenger, &messenger_info);
+		if (can_enable_debug_messenger) {
+			VkDebugUtilsMessengerCreateInfoEXT messenger_info;
+			gfx_vkdebugmessenger_get_vulkan_createinfo(descriptor->creation_debug_messenger, &messenger_info);
 
-	// 		instance_info.pNext = &messenger_info;
-	// 	}
-	// }
+			instance_info.pNext = &messenger_info;
+		}
+	}
 
 	log_debug(context, "Creating Vulkan instance...");
 	log_trace(context, "Using VkInstanceCreateInfo:");
