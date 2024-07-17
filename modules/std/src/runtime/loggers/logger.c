@@ -29,10 +29,8 @@ void logger_log_ex(SourceCodeLocation location, Logger logger, LogLevel level, r
 
 	usize message_length = vsnprintf(nullptr, 0, format, args);
 	
-	Slice(byte) message = allocator_alloc(logger.allocator, message_length + 2);
+	Slice(byte) message = allocator_alloc(logger.temp_allocator, message_length + 2);
 	vsnprintf((char*)message.data, message_length + 1, format, args);
 
 	logger.vtable->log(logger.logger_data, level, (rawstring)(message.data), location);
-
-	allocator_dealloc(logger.allocator, message);
 }

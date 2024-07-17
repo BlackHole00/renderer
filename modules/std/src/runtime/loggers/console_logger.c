@@ -22,10 +22,10 @@ static auto singleton_of(vtable_of(ConsoleLogger)) = (vtable_of(Logger)){
 	.flush = consolelogger_flush
 };
 
-ConsoleLogger consolelogger_make(LogLevel minimum_log_level, Allocator allocator) {
+ConsoleLogger consolelogger_make(LogLevel minimum_log_level, Allocator temp_allocator) {
 	return (ConsoleLogger){
 		.minimum_log_level = minimum_log_level,
-		.allocator = allocator,
+		.temp_allocator = temp_allocator,
 		.vtable = &singleton_of(vtable_of(ConsoleLogger))
 	};
 }
