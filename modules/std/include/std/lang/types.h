@@ -44,6 +44,9 @@ typedef f64 vec4f64 __attribute__((ext_vector_type(4)));
 
 #define countof(_array) (sizeof(_array) / sizeof(*_array))
 
+#define before_main __attribute__((constructor))
+#define after_main  __attribute__((destructor))
+
 STD_DECLARE_STANDARD_COMPARATORS_OF(i8)
 STD_DECLARE_STANDARD_COMPARATORS_OF(u8)
 STD_DECLARE_STANDARD_COMPARATORS_OF(i16)

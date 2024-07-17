@@ -12,9 +12,17 @@ void show_banner(Logger logger) {
 
 int main(void) {
 	Allocator allocator = singleton_of(SystemAllocator);
+	Allocator temp_allocator = arenaallocator_create(allocator);
+	defer(arenaallocator_delete(temp_allocator));
+	Allocator global_allocator = arenaallocator_create(allocator);
+	defer(arenaallocator_delete(global_allocator));
+
 	Logger logger = consolelogger_make(LOG_LEVEL_TRACE, allocator);
+
 	Context context = (Context){
 		.allocator = allocator,
+		.temp_allocator = temp_allocator,
+		.global_allocator = global_allocator,
 		.logger = logger,
 	};
 

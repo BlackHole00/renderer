@@ -8,6 +8,7 @@
 typedef struct {
 	Allocator allocator;
 	Allocator temp_allocator;
+	Allocator global_allocator;
 	Logger logger;
 } Context;
 
