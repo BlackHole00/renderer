@@ -162,7 +162,7 @@ if EXTRA_CLEAN_COMMAND != '':
 if EXTRA_BUILD_COMMAND != '':
     logger.info('\tEXTRA_BUILD_COMMAND: %s' % EXTRA_BUILD_COMMAND)
 if EXTRA_POST_BUILD_COMMAND != '':
-    logger.info('\EXTRA_POST_BUILD_COMMAND_COMMAND: %s' % EXTRA_POST_BUILD_COMMAND)
+    logger.info('\tEXTRA_POST_BUILD_COMMAND_COMMAND: %s' % EXTRA_POST_BUILD_COMMAND)
 
 ################################################################################
 # CONFIGURATION CHECKS

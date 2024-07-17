@@ -11,7 +11,7 @@ void show_banner(Logger logger) {
 }
 
 int main(void) {
-	Allocator allocator = singleton_of(SystemAllocator);
+	Allocator allocator = singleton_of(MimallocAllocator);
 	Allocator temp_allocator = arenaallocator_create(allocator);
 	defer(arenaallocator_delete(temp_allocator));
 	Allocator global_allocator = arenaallocator_create(allocator);

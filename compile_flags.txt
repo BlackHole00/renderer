@@ -10,4 +10,5 @@
 -Imodules/glfw/include
 -Imodules/vulkan/include
 -Imodules/gfx-hal/include
+-Imodules/mimalloc/include
 
