@@ -11,13 +11,11 @@ void show_banner(Logger logger) {
 }
 
 int main(void) {
-	Allocator allocator = singleton_of(MimallocAllocator);
-	Allocator temp_allocator = singleton_of(MimallocAllocator);
-	Allocator global_allocator = singleton_of(MimallocAllocator);
-	// Allocator temp_allocator = arenaallocator_create(allocator);
-	// defer(arenaallocator_delete(temp_allocator));
-	// Allocator global_allocator = arenaallocator_create(allocator);
-	// defer(arenaallocator_delete(global_allocator));
+	Allocator allocator = singleton_of(SystemAllocator);
+	Allocator temp_allocator = arenaallocator_create(allocator);
+	defer(arenaallocator_delete(temp_allocator));
+	Allocator global_allocator = arenaallocator_create(allocator);
+	defer(arenaallocator_delete(global_allocator));
 
 	Logger logger = consolelogger_make(LOG_LEVEL_TRACE, allocator);
 
@@ -53,7 +51,7 @@ int main(void) {
 		}
 
 		glfwPollEvents();
-		// allocator_dealloc_all(context.temp_allocator);
+		allocator_dealloc_all(context.temp_allocator);
 	}
 
 	return 0;

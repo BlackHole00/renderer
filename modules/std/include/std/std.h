@@ -24,7 +24,6 @@
 #include <std/runtime/context.h>
 
 #include <std/runtime/allocators/system_allocator.h>
-#include <std/runtime/allocators/mimalloc_allocator.h>
 #include <std/runtime/allocators/arena_allocator.h>
 #include <std/runtime/loggers/console_logger.h>
 
