@@ -1,5 +1,10 @@
-#ifdef BUILDER_OS_DARWIN
+/**
+ * @module STD
+ * @file modules/std/src/runtime/allocators/system_allocator_page_darwin.c
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #include <std/runtime/allocators/arena_allocator.h>
+#ifdef BUILDER_OS_DARWIN
 
 #include <sys/mman.h>
 

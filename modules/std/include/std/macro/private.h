@@ -1,4 +1,5 @@
 /**
+ * @module STD
  * @file modules/std/include/std/macro/private.h
  * @author Vicix (www.github.com/BlackHole00)
  * @brief Helper functions for the macros located in @see macros.h

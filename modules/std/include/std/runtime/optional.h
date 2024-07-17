@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/include/std/runtime/optional.h
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #pragma once
 
 #include <assert.h>

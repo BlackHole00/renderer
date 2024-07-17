@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/include/std/lang/source_code_location.h
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #pragma once
 
 #include <std/lang/types.h>

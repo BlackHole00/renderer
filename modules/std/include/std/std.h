@@ -1,4 +1,31 @@
+/**
+ * @module STD
+ * @file modules/std/include/std.h
+ * @author Vicix (www.github.com/BlackHole00)
+ * @brief A Better standard library for C
+ *
+ * STD is an alternative standard library built on top of the default standard
+ * library. Its main purpose is to make C a more modern language without
+ * changing its principles.
+ * 
+ * STD implements usefull things like:
+ *     - usefull macros, especially for managing variadic argument macros
+ *	   - improved, more explicit types (link u32 and i64)
+ *	   - new language utilities (like defer and lambda)
+ *	   - improved data structures (like descriptors, singletons, vtables...)
+ *     - improved logging
+ *     - improved memory management (using slices, allocators and arenas)
+ *     - a context system
+ *     - generic templated types (like optionals, slices and vectors)
+ *	   - a typesafe trait-like system for implementing generic data structures
+ *     - and a lot more...
+ * 
+ * @note STD required clang 18 (or newer) and the c23 standard of C. This is
+ *       because both c23 features and clang specific extensions are used.
+ */
 #pragma once
+
+#include <std/lang/trap.h>
 
 #include <std/macro/macros.h>
 
@@ -28,6 +55,4 @@
 #include <std/runtime/loggers/console_logger.h>
 
 #include <std/containers/vector.h>
-
-
 

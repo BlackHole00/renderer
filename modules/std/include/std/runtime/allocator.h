@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/include/std/runtime/allocator.h
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #pragma once
 
 #include <std/lang/types.h>

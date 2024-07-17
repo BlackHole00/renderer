@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/include/std/runtime/slice_utils.h
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #pragma once
 
 #include <memory.h>

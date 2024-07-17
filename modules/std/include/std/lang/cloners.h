@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/include/lang/std/cloners.h
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #pragma once
 
 #include <strings.h>

@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/src/runtime/allocators/arena_allocator.c
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #include <std/runtime/allocators/arena_allocator.h>
 
 #include <std/lang/mem.h>

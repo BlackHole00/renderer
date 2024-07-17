@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/src/runtime/logger.c
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #include <std/runtime/logger.h>
 
 #include <stdio.h>

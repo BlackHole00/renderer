@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/src/runtime/loggers/console_logger.h
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #include <std/runtime/loggers/console_logger.h>
 
 #include <stdio.h>

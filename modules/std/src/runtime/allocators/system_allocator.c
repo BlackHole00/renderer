@@ -1,3 +1,8 @@
+/**
+ * @module STD
+ * @file modules/std/src/runtime/allocators/system_allocator.c
+ * @author Vicix (www.github.com/BlackHole00)
+ */
 #include <std/runtime/allocators/system_allocator.h>
 
 #include <assert.h>
