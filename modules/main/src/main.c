@@ -28,7 +28,9 @@ int main(void) {
 		.logger = logger,
 	};
 
-	new(ReallyBigBoy, global_allocator);
+	auto a = new(ReallyBigBoy, global_allocator);
+	STD_VAARGS_GET_EXCEPT(0,1,);
+	static_typecheck(ReallyBigBoy*, a);
 
 	show_banner(logger);
 
