@@ -62,6 +62,10 @@ static inline STD_PRINTF_LIKE(3, 4) void context_fatal_ex(SourceCodeLocation loc
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void context_error_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+	if (context->logger.minimum_log_level > LOG_LEVEL_ERROR) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -70,6 +74,10 @@ static inline STD_PRINTF_LIKE(3, 4) void context_error_ex(SourceCodeLocation loc
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void context_warn_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+	if (context->logger.minimum_log_level > LOG_LEVEL_WARN) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -78,6 +86,10 @@ static inline STD_PRINTF_LIKE(3, 4) void context_warn_ex(SourceCodeLocation loca
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void context_info_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+	if (context->logger.minimum_log_level > LOG_LEVEL_INFO) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -86,6 +98,10 @@ static inline STD_PRINTF_LIKE(3, 4) void context_info_ex(SourceCodeLocation loca
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void context_debug_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+	if (context->logger.minimum_log_level > LOG_LEVEL_DEBUG) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -94,6 +110,10 @@ static inline STD_PRINTF_LIKE(3, 4) void context_debug_ex(SourceCodeLocation loc
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void context_trace_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+	if (context->logger.minimum_log_level > LOG_LEVEL_TRACE) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 

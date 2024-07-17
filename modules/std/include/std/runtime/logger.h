@@ -45,7 +45,6 @@ typedef struct {
 #define logger_debug(...) logger_debug_ex (sourcecodelocation_current(), __VA_ARGS__)
 #define logger_trace(...) logger_trace_ex (sourcecodelocation_current(), __VA_ARGS__)
 
-// TODO(Vicix): Check for log level also in logger_*_ex, since computing va_lists can be expensive
 void logger_log_ex(SourceCodeLocation location, Logger logger, LogLevel level, rawstring format, va_list args);
 static inline STD_PRINTF_LIKE(3, 4) void logger_fatal_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	va_list args;
@@ -56,6 +55,10 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_fatal_ex(SourceCodeLocation loca
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void logger_error_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+	if (logger.minimum_log_level > LOG_LEVEL_ERROR) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -64,6 +67,10 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_error_ex(SourceCodeLocation loca
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void logger_warn_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+	if (logger.minimum_log_level > LOG_LEVEL_WARN) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -72,6 +79,10 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_warn_ex(SourceCodeLocation locat
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void logger_info_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+	if (logger.minimum_log_level > LOG_LEVEL_INFO) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -80,6 +91,10 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_info_ex(SourceCodeLocation locat
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void logger_debug_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+	if (logger.minimum_log_level > LOG_LEVEL_DEBUG) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
@@ -88,6 +103,10 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_debug_ex(SourceCodeLocation loca
 	va_end(args);
 }
 static inline STD_PRINTF_LIKE(3, 4) void logger_trace_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+	if (logger.minimum_log_level > LOG_LEVEL_TRACE) {
+		return;
+	}
+
 	va_list args;
 	va_start(args, format);
 
