@@ -23,7 +23,7 @@ static Slice(byte) arenaallocator_alloc(void* data, usize size, bool zeroed) {
 	}
 
 	// There are no pages free. Allocate a new one
-	ArenaAllocatorPage new_page = arenaallocatorpage_create();
+	ArenaAllocatorPage new_page = arenaallocatorpage_create(size);
 	if (!arenaallocatorpage_is_valid(arena->first_page)) {
 		return slice_make_null(byte)();
 	}
@@ -87,7 +87,7 @@ ArenaAllocator arenaallocator_create(Allocator backing_allocator) {
 	// TODO(Vicix): Do not assert
 	assert(arena != nullptr);
 
-	ArenaAllocatorPage page = arenaallocatorpage_create();
+	ArenaAllocatorPage page = arenaallocatorpage_create(0);
 	// TODO(Vicix): Do not assert
 	assert(arenaallocatorpage_is_valid(page));
 

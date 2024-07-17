@@ -3,11 +3,27 @@
 
 #include <sys/mman.h>
 
-ArenaAllocatorPage arenaallocatorpage_create() {
+static usize get_required_page_size(usize required_size) {
+	// NOTE(Vicix): required_size + header
+	usize actual_required_size_bytes = required_size + 3 * sizeof(usize);
+	if (actual_required_size_bytes < PAGE_SIZE) {
+		return PAGE_SIZE / sizeof(usize);
+	}
+
+	usize page_count = ((actual_required_size_bytes - 1) / PAGE_SIZE) + 1;
+	usize aligned_size_bytes = page_count * PAGE_SIZE;
+	usize aligned_size_words = aligned_size_bytes / sizeof(usize);
+
+	return aligned_size_words;
+}
+
+ArenaAllocatorPage arenaallocatorpage_create(usize required_size) {
+	usize page_size = get_required_page_size(required_size);
+
 	ArenaAllocatorPage page;
  	page.base_address = mmap(
 		nullptr, 
-		PAGE_SIZE, 
+		page_size,
 		PROT_READ | PROT_WRITE, 
 		MAP_ANONYMOUS | MAP_PRIVATE, 
 		-1, 
@@ -16,7 +32,7 @@ ArenaAllocatorPage arenaallocatorpage_create() {
 
 	page.contents->next_page = nullptr;
 	page.contents->first_free_index = 0;
-	page.contents->page_size = PAGE_SIZE;
+	page.contents->page_size = page_size;
 
 	return page;
 }

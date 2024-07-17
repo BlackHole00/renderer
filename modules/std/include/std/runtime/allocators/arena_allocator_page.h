@@ -22,7 +22,7 @@ typedef union {
 	}* contents;
 } ArenaAllocatorPage;
 
-ArenaAllocatorPage arenaallocatorpage_create();
+ArenaAllocatorPage arenaallocatorpage_create(usize required_size);
 void arenaallocatorpage_delete(ArenaAllocatorPage page);
 
 static inline bool arenaallocatorpage_is_valid(ArenaAllocatorPage page) {

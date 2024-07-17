@@ -10,6 +10,8 @@ void show_banner(Logger logger) {
 	log_info(logger, "\tby Vicix");
 }
 
+typedef f64 ReallyBigBoy[65536];
+
 int main(void) {
 	Allocator allocator = singleton_of(SystemAllocator);
 	Allocator temp_allocator = arenaallocator_create(allocator);
@@ -25,6 +27,8 @@ int main(void) {
 		.global_allocator = global_allocator,
 		.logger = logger,
 	};
+
+	new(ReallyBigBoy, global_allocator);
 
 	show_banner(logger);
 
