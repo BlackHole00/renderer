@@ -3,8 +3,8 @@
 -Dconstexpr=NULL
 -DBUILDER_DEBUG=1
 -DBUILDER_RELEASE=0
--DBUILDER_OS=darwin
--DBUILDER_ARCH=arm64
+-DBUILDER_OS_DARWIN=1
+-DBUILDER_ARCH_ARM64=1
 -DBUILDER_BITS=64
 -Imodules/std/include
 -Imodules/glfw/include

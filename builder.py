@@ -18,7 +18,7 @@ VERSION = '1.0.0'
 logging.basicConfig(format='[%(levelname)s] : %(message)s')
 
 logger = logging.getLogger('Builder')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 ################################################################################
 # SANITY_CHECKS
@@ -321,24 +321,24 @@ def compile_source(source):
         EXTRA_BUILD_ARGS
     )
     compilation_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
-    compilation_command += ' -D BUILDER_DEBUG=%d -D BUILDER_RELEASE=%d -D BUILDER_OS=%s -D BUILDER_ARCH=%s -D BUILDER_BITS=%s' % (
+    compilation_command += ' -D BUILDER_DEBUG=%d -D BUILDER_RELEASE=%d -D BUILDER_OS_%s=1 -D BUILDER_ARCH_%s=1 -D BUILDER_BITS=%s' % (
         1 if OPT_LEVEL == 'debug' else 0,
         1 if OPT_LEVEL == 'release' else 0,
-        platform.system().lower(),
-        architecture,
-        platform.architecture()[0]
+        platform.system().upper(),
+        architecture.upper(),
+        platform.architecture()[0][0:2]
     )
 
     expand_command = '%s -E -c %s' % (
         PP, source
     )
     expand_command += ''.join(' -I%s' % i.strip() for i in INCLUDE_FOLDERS.split(',') if i.strip() != '')
-    expand_command += ' -D BUILDER_DEBUG=%d -D BUILDER_RELEASE=%d -D BUILDER_OS=%s -D BUILDER_ARCH=%s -D BUILDER_BITS=%s' % (
+    expand_command += ' -D BUILDER_DEBUG=%d -D BUILDER_RELEASE=%d -D BUILDER_OS_%s=1 -D BUILDER_ARCH_%s=1 -D BUILDER_BITS=%s' % (
         1 if OPT_LEVEL == 'debug' else 0,
         1 if OPT_LEVEL == 'release' else 0,
-        platform.system().lower(),
-        architecture,
-        platform.architecture()[0]
+        platform.system().upper(),
+        architecture.upper(),
+        platform.architecture()[0][0:2]
     )
 
     error_code, result = subprocess.getstatusoutput(expand_command)
