@@ -91,8 +91,8 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
 	log_trace(context, "\t- application_version: %x", descriptor->application_version);
 	log_trace(context, "\t- enable_debug: %d", descriptor->enable_debug);
 
-	Slice(gfx_VkInitializationExtension) extensions = gfx_instance_get_initialization_extensions(descriptor->enable_debug, context->allocator);
-	Slice(gfx_VkInitializationLayer) layers = gfx_instance_get_initialization_layers(descriptor->enable_debug, context->allocator);
+	Slice(gfx_VkInitializationExtension) extensions = gfx_instance_get_initialization_extensions(descriptor->enable_debug, context->temp_allocator);
+	Slice(gfx_VkInitializationLayer) layers = gfx_instance_get_initialization_layers(descriptor->enable_debug, context->temp_allocator);
 
 	descriptor_of(gfx_VkInstance) instance_descriptor = (descriptor_of(gfx_VkInstance)){
 		.application_name = (const rawstring)descriptor->application_name,
@@ -129,11 +129,8 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
     );
 	if (result != GFX_SUCCESS) {
 		log_error(context, "gfx-hal instance initialization failed: Could not create a gfx_VkInstance");
-		goto vkinstance_error;
+		return result;
 	}
-
-	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
-	slice_delete(gfx_VkInitializationLayer)(layers, context->allocator);
 
 	if (descriptor->enable_debug) {
 		log_debug(context, "Attaching the gfx_VkDebugMessenger with the gfx_VkInstance...");
@@ -143,20 +140,12 @@ gfx_Result gfx_instance_init(const descriptor_of(gfx_Instance)* descriptor, Cont
 		);
 		if (result != GFX_SUCCESS) {
 			log_error(context, "gfx-hal instance initialization failed: Could not attache the gfx_VkDebugMessenger to the gfx_VkInstance");
-			goto vkdebugmessenger_error;
+			gfx_vkinstance_delete(&singleton_of(gfx_Instance).instance);
+			return result;
 		}
 	}
 
 	log_debug(context, "Successfully initialized the gfx-hal instance");
-	return result;
-
-vkinstance_error:
-	slice_delete(gfx_VkInitializationExtension)(extensions, context->allocator);
-	slice_delete(gfx_VkInitializationLayer)(layers, context->allocator);
-	return result;
-
-vkdebugmessenger_error:
-	gfx_vkinstance_delete(&singleton_of(gfx_Instance).instance);
 	return result;
 }
 

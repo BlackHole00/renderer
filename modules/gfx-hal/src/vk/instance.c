@@ -9,7 +9,7 @@ static bool gfx_vkinstance_check_extension_support(
     Slice(rawstring)* valid_extensions,
     Context* context
 ) {
-	Vector(rawstring) tmp_valid_extensions = vector_make(rawstring)(context->allocator);
+	Vector(rawstring) tmp_valid_extensions = vector_make(rawstring)(context->global_allocator);
 	bool has_invalid_extensions = false;
 
 	log_trace(context, "Checking for Vulkan instance extensions compatibility...");
@@ -34,9 +34,8 @@ static bool gfx_vkinstance_check_extension_support(
 			);
 			has_invalid_extensions = true;
 		} else if (valid) {
-			// TODO(Vicix): Use a static arena
 			rawstring extension_name;
-			clone(rawstring)(&extension.name, &extension_name, context->allocator);
+			clone(rawstring)(&extension.name, &extension_name, context->global_allocator);
 
 			vector_append(rawstring)(&tmp_valid_extensions, extension_name);
 		}
@@ -52,7 +51,7 @@ static bool gfx_vkinstance_check_layer_support(
     Slice(rawstring)* valid_layers,
     Context* context
 ) {
-	Vector(rawstring) tmp_valid_layers = vector_make(rawstring)(context->allocator);
+	Vector(rawstring) tmp_valid_layers = vector_make(rawstring)(context->global_allocator);
 	bool has_invalid_layers = false;
 
 	log_trace(context, "Checking for Vulkan instance layers compatibility...");
@@ -77,9 +76,8 @@ static bool gfx_vkinstance_check_layer_support(
 			);
 			has_invalid_layers = true;
 		} else if (valid) {
-			// TODO(Vicix): Use a static arena
 			rawstring layer_name;
-			clone(rawstring)(&layer.name, &layer_name, context->allocator);
+			clone(rawstring)(&layer.name, &layer_name, context->global_allocator);
 
 			vector_append(rawstring)(&tmp_valid_layers, layer_name);
 		}
@@ -117,7 +115,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	log_trace(context, "\t- creation_debug_messenger: %p", (void*)(descriptor->creation_debug_messenger));
 
 	gfx_VkInstanceProber prober;
-	result = gfx_vkinstanceprober_make(&prober, context->allocator);
+	result = gfx_vkinstanceprober_make(&prober, context->temp_allocator);
 	if (result != GFX_SUCCESS) {
 		return result;
 	}
@@ -140,8 +138,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	    context)
 	) {
 		log_error(context, "gfx_VkInstance creation failed: Found unsupported Vulkan extension");
-		result = GFX_UNSUPPORTED_VK_INSTANCE_EXTENSION;
-		goto error;
+		return GFX_UNSUPPORTED_VK_INSTANCE_EXTENSION;
 	}
 	if (!gfx_vkinstance_check_layer_support(
 	    &prober, 
@@ -150,8 +147,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 	    context)
 	) {
 		log_error(context, "gfx_VkInstance creation failed: Found unsupported Vulkan layer");
-		result = GFX_UNSUPPORTED_VK_INSTANCE_LAYER;
-		goto error;
+		return GFX_UNSUPPORTED_VK_VERSION;
 	}
 
 	VkApplicationInfo application_info = (VkApplicationInfo){
@@ -167,26 +163,26 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
 		.pApplicationInfo = &application_info,
-		.enabledExtensionCount = instance->enabled_extensions.length,
-		.ppEnabledExtensionNames = (const char**)instance->enabled_extensions.data,
-		.enabledLayerCount = instance->enabled_layers.length,
-		.ppEnabledLayerNames = (const char**)(instance->enabled_layers.data)
+		// .enabledExtensionCount = instance->enabled_extensions.length,
+		// .ppEnabledExtensionNames = (const char**)instance->enabled_extensions.data,
+		// .enabledlayercount = instance->enabled_layers.length,
+		// .ppenabledlayernames = (const char**)(instance->enabled_layers.data)
 	};
 
-	if (descriptor->creation_debug_messenger != nullptr) {
-		rawstring debug_extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-		bool can_enable_debug_messenger = slice_contains_element(rawstring)(
-			instance->enabled_extensions, 
-			&debug_extension
-		);
+	// if (descriptor->creation_debug_messenger != nullptr) {
+	// 	rawstring debug_extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+	// 	bool can_enable_debug_messenger = slice_contains_element(rawstring)(
+	// 		instance->enabled_extensions, 
+	// 		&debug_extension
+	// 	);
 
-		if (can_enable_debug_messenger) {
-			VkDebugUtilsMessengerCreateInfoEXT messenger_info;
-			gfx_vkdebugmessenger_get_vulkan_createinfo(descriptor->creation_debug_messenger, &messenger_info);
+	// 	if (can_enable_debug_messenger) {
+	// 		VkDebugUtilsMessengerCreateInfoEXT messenger_info;
+	// 		gfx_vkdebugmessenger_get_vulkan_createinfo(descriptor->creation_debug_messenger, &messenger_info);
 
-			instance_info.pNext = &messenger_info;
-		}
-	}
+	// 		instance_info.pNext = &messenger_info;
+	// 	}
+	// }
 
 	log_debug(context, "Creating Vulkan instance...");
 	log_trace(context, "Using VkInstanceCreateInfo:");
@@ -219,7 +215,7 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
     ));
 	if (result != GFX_SUCCESS) {
 		log_error(context, "gfx_VkInstance creation failed: Could not create a Vulkan instance (error code: %d)", result);
-		goto error;
+		return result;
 	}
 
 	instance->context = context;
@@ -227,31 +223,10 @@ gfx_Result gfx_vkinstance_make(gfx_VkInstance* instance, const descriptor_of(gfx
 
 	log_debug(context, "Successfully created a gfx_VkInstance");
 	return GFX_SUCCESS;
-
-error:
-	for (usize i = 0; i < instance->enabled_extensions.length; i++) {
-		allocator_dealloc_single(context->allocator, instance->enabled_extensions.data[i]);
-	}
-	slice_delete(rawstring)(instance->enabled_extensions, context->allocator);
-	for (usize i = 0; i < instance->enabled_layers.length; i++) {
-		allocator_dealloc_single(context->allocator, instance->enabled_layers.data[i]);
-	}
-	slice_delete(rawstring)(instance->enabled_layers, context->allocator);
-
-	return result;
 }
 
 void gfx_vkinstance_delete(const gfx_VkInstance* instance) {
 	Context* context = instance->context;
-
-	for (usize i = 0; i < instance->enabled_extensions.length; i++) {
-		allocator_dealloc_single(context->allocator, instance->enabled_extensions.data[i]);
-	}
-	slice_delete(rawstring)(instance->enabled_extensions, context->allocator);
-	for (usize i = 0; i < instance->enabled_layers.length; i++) {
-		allocator_dealloc_single(context->allocator, instance->enabled_layers.data[i]);
-	}
-	slice_delete(rawstring)(instance->enabled_layers, context->allocator);
 
 	log_trace(context, "Destroying Vulkan instance...");
 	vkDestroyInstance(instance->instance, nullptr);

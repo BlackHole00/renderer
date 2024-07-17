@@ -12,10 +12,12 @@ void show_banner(Logger logger) {
 
 int main(void) {
 	Allocator allocator = singleton_of(MimallocAllocator);
-	Allocator temp_allocator = arenaallocator_create(allocator);
-	defer(arenaallocator_delete(temp_allocator));
-	Allocator global_allocator = arenaallocator_create(allocator);
-	defer(arenaallocator_delete(global_allocator));
+	Allocator temp_allocator = singleton_of(MimallocAllocator);
+	Allocator global_allocator = singleton_of(MimallocAllocator);
+	// Allocator temp_allocator = arenaallocator_create(allocator);
+	// defer(arenaallocator_delete(temp_allocator));
+	// Allocator global_allocator = arenaallocator_create(allocator);
+	// defer(arenaallocator_delete(global_allocator));
 
 	Logger logger = consolelogger_make(LOG_LEVEL_TRACE, allocator);
 
@@ -39,7 +41,7 @@ int main(void) {
 
 	gfx_Result instance_init_result = gfx_instance_init(&(descriptor_of(gfx_Instance)){
 		.application_name = "Renderer",
-		.application_version = VK_MAKE_VERSION(0, 0, 1),
+		.application_version = gfx_version_make(0, 0, 1),
 		.enable_debug = BUILDER_DEBUG
 	}, &context);
 	assert(instance_init_result == GFX_SUCCESS);
@@ -51,6 +53,7 @@ int main(void) {
 		}
 
 		glfwPollEvents();
+		// allocator_dealloc_all(context.temp_allocator);
 	}
 
 	return 0;

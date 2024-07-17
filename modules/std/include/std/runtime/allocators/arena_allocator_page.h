@@ -31,7 +31,7 @@ static inline void* arenaallocatorpage_get_first_free_address(ArenaAllocatorPage
 	return (void*)(page.contents->page_content + page.contents->first_free_index);
 }
 static inline bool arenaallocatorpage_can_alloc(ArenaAllocatorPage page, usize size) {
-	return (page.contents->first_free_index + 2 + size) >= PAGE_SIZE;
+	return (page.contents->first_free_index + 2 + size) < PAGE_SIZE;
 }
 static inline void* arenaallocatorpage_alloc(ArenaAllocatorPage page, usize size) {
 	if (!arenaallocatorpage_can_alloc(page, size)) {
