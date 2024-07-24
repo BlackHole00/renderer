@@ -12,8 +12,8 @@
 
 typedef struct {
 	Allocator allocator;
-	Allocator temp_allocator;
-	Allocator global_allocator;
+	TempAllocator temp_allocator;
+	GlobalAllocator global_allocator;
 	Logger logger;
 } Context;
 

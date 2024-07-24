@@ -38,7 +38,7 @@ typedef struct {
 typedef struct {
 	const vtable_of(Logger)* vtable;
 	void* logger_data;
-	Allocator temp_allocator;
+	TempAllocator temp_allocator;
 	LogLevel minimum_log_level;
 } Logger;
 

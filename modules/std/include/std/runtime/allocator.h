@@ -28,6 +28,25 @@ typedef struct {
 	void* allocator_data;
 } Allocator;
 
+// Used to indicate that a function expects a temporary allocator. This implies
+// that the memory allocated with the allocator will not be deallocated by the
+// function, but will surely be not needed after the function returns
+//
+// NOTE(Vicix): A temp allocator *must* not assert on a dealloc call. If the
+//              temporary allocator is not designed to deallocate memory, the
+//              deallocation must be treated as a no-op operation.
+typedef Allocator TempAllocator;
+
+// Used to indicate that a function expects a global allocator. This implies 
+// that the memory allocated with the allocator will not be deallocated by the
+// function and is expected to be valid for the entire lifetime of the 
+// application
+//
+// NOTE(Vicix): A global allocator *must* not assert on a dealloc call. If the
+//              global allocator is not designed to deallocate memory, the
+//              deallocation must be treated as a no-op operation.
+typedef Allocator GlobalAllocator;
+
 static inline Slice(byte) allocator_alloc(Allocator allocator, usize size) {
 	return allocator.vtable->alloc(allocator.allocator_data, size, true);
 }

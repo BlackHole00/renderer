@@ -49,6 +49,7 @@
 #include <std/runtime/allocator.h>
 #include <std/runtime/logger.h>
 #include <std/runtime/context.h>
+#include <std/runtime/rc.h>
 
 #include <std/runtime/allocators/system_allocator.h>
 #include <std/runtime/allocators/arena_allocator.h>
