@@ -30,6 +30,18 @@
 #define STD_EVAL(...) __VA_ARGS__
 
 /**
+ * @def STD_BEGIN
+ * @brief Expands to `do {` used for inline macros
+ */
+#define STD_BEGIN do {
+
+/**
+ * @def STD_END
+ * @brief Expands to `} while (false)` used for inline macros
+ */
+#define STD_END } while (false);
+
+/**
  * @def STD_STRINGIFY(_x)
  * @brief Evals and stringifies an inputed expression
  */
@@ -174,3 +186,11 @@
 	static const int STD_CAT(__STD_STATIC_TYPECHECK_, __COUNTER__) = (_Generic(STD_VAARGS_GET_LAST(__VA_ARGS__), STD_VAARGS_GET_EXCEPT_LAST(__VA_ARGS__): 0)) \
 )
 
+/**
+ * @def transmute(_type, _x)
+ * @brief Equivalent to cpp's static_cast. Converts a value mantaining its bits
+ * @param _type The resulting type
+ * @param _x The variable to transmute
+ */
+//TODO(Vicix): Change to use va_args
+#define transmute(_type, _x) (*((_type*)(&(_x))));static_assert(sizeof(_x) == sizeof(_type), "Cannot trasmute variable " #_x " to type of different size")

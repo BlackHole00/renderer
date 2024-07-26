@@ -22,6 +22,8 @@
 #define slice_index_of_element(T) STD_CAT(slice_, T, _index_of_element)
 #define slice_find_element(T) STD_CAT(slice_, T, _find_element)
 
+#define slice_sort_elements(T) STD_CAT(slice_, T, _sort_elements)
+
 #define slice_deep_clone(T) STD_CAT(slice_, T, _deep_clone)
 
 #define STD_DECLARE_SLICE_MEM_UTILS_OF(T) \
@@ -73,7 +75,37 @@ static inline T* slice_find_element(T)(Slice(T) slice, T* value) { \
 	return nullptr; \
 }
 
-#define STD_DECLARE_SLICE_DEEP_CLONE(T, T_deep_cloner) \
+#define STD_DECLARE_SLICE_SORTING_UTILS_OF(T, T_scalar_comparator) \
+static inline void slice_sort_elements(T)(Slice(T) slice) { \
+	usize start = slice.length / 2; \
+	usize end = slice.length; \
+	while (end > 1) { \
+		if (start > 0) { \
+			start--;\
+		} else { \
+			end--; \
+			swap(&slice.data[end], &slice.data[0]); \
+		} \
+		usize root = start; \
+		usize left_child = (2 * root) + 1; \
+		while (left_child < end) { \
+			usize child = left_child; \
+			if ((child + 1 < end) &&  \
+				(T_scalar_comparator(&slice.data[child], &slice.data[child + 1]) < 0) \
+			) { \
+				child = child + 1; \
+			} \
+			if (T_scalar_comparator(&slice.data[root], &slice.data[child]) < 0) { \
+				swap(&slice.data[root], &slice.data[child]); \
+				root = child; \
+			} else { \
+				break; \
+			} \
+		} \
+	} \
+}
+
+#define STD_DECLARE_SLICE_DEEP_CLONE_OF(T, T_deep_cloner) \
 static inline Slice(T) slice_deep_clone(T)(Slice(T) source, Allocator allocator) { \
 	static_typecheck(STD_DEEP_CLONE_SIGNATURE(T), T_deep_cloner); \
 	Slice(T) result = slice_make(T)(source.length, allocator); \
@@ -120,4 +152,20 @@ STD_DECLARE_SLICE_COMMON_UTILS_OF(isize,     equality_comparator_of(isize))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(usize,     equality_comparator_of(usize))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(rune,      equality_comparator_of(rune))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(rawstring, equality_comparator_of(rawstring))
+
+STD_DECLARE_SLICE_SORTING_UTILS_OF(byte,      scalar_comparator_of(byte))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(i8,        scalar_comparator_of(i8))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(i16,       scalar_comparator_of(i16))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(i32,       scalar_comparator_of(i32))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(i64,       scalar_comparator_of(i64))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(u8,        scalar_comparator_of(u8))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(u16,       scalar_comparator_of(u16))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(u32,       scalar_comparator_of(u32))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(u64,       scalar_comparator_of(u64))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(f32,       scalar_comparator_of(f32))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(f64,       scalar_comparator_of(f64))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(isize,     scalar_comparator_of(isize))
+// STD_DECLARE_SLICE_SORTING_UTILS_OF(usize,     scalar_comparator_of(usize))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(rune,      scalar_comparator_of(rune))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(rawstring, scalar_comparator_of(rawstring))
 

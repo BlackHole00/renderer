@@ -22,6 +22,8 @@
 #define slice_contains(T) STD_CAT(slice_, T, _contains)
 #define slice_index_of(T) STD_CAT(slice_, T, _index_of)
 #define slice_find(T) STD_CAT(slice_, T, _find)
+// Heap sort
+#define slice_sort(T) STD_CAT(slice_, T, _sort)
 
 #define STD_DECLARE_SLICE_OF(T)                                         	   \
 typedef struct {                                                        	   \
@@ -97,6 +99,34 @@ static inline T* slice_find(T)(Slice(T) slice, bool (^search_predicate)(const T*
 		} \
 	} \
 	return nullptr; \
+} \
+static inline void slice_sort(T)(Slice(T) slice, usize (^equality_predicate)(const T*, const T*)) { \
+	usize start = slice.length / 2; \
+	usize end = slice.length; \
+	while (end > 1) { \
+		if (start > 0) { \
+			start--;\
+		} else { \
+			end--; \
+			swap(&slice.data[end], &slice.data[0]); \
+		} \
+		usize root = start; \
+		usize left_child = (2 * root) + 1; \
+		while (left_child < end) { \
+			usize child = left_child; \
+			if ((child + 1 < end) &&  \
+				(equality_predicate(&slice.data[child], &slice.data[child + 1]) < 0) \
+			) { \
+				child = child + 1; \
+			} \
+			if (equality_predicate(&slice.data[root], &slice.data[child]) < 0) { \
+				swap(&slice.data[root], &slice.data[child]); \
+				root = child; \
+			} else { \
+				break; \
+			} \
+		} \
+	} \
 }
 
 STD_DECLARE_SLICE_OF(byte)

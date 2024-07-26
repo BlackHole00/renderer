@@ -43,6 +43,7 @@ static inline u64 next_power_of_2_u64(u64 x) {
 	return ++x;
 }
 
+// TODO(Vicix): Support 32 bits
 #define next_power_of_2(...) (_Generic(__VA_ARGS__,\
 	u8: next_power_of_2_u8, \
 	u16: next_power_of_2_u16, \

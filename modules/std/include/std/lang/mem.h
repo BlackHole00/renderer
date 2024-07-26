@@ -16,3 +16,16 @@
 	Allocator: allocator_dealloc_single \
 )(STD_VAARGS_GET_LAST(__VA_ARGS__), STD_VAARGS_GET_EXCEPT_LAST(__VA_ARGS__))
 
+/**
+ * @def swap(_x, _y)
+ * @brief Swaps the value of two variables
+ * @param _x The pointer to the first variable
+ * @param _y The pointer to the second variable
+ */
+#define swap(_x, _y) STD_BEGIN \
+	static_typecheck(typeof(_x), _y); \
+	typeof(*_x) _tmp = *_x; \
+	*_x = *_y; \
+	*_y = _tmp; \
+STD_END
+
