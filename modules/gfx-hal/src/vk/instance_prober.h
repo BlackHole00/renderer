@@ -11,6 +11,7 @@ typedef struct {
 } gfx_VkInstanceProber;
 
 gfx_Result gfx_vkinstanceprober_make(gfx_VkInstanceProber* prober, Allocator allocator);
+// Not needed when using a temporary allocator
 void gfx_vkinstanceprober_delete(const gfx_VkInstanceProber* prober);
 
 bool gfx_vkinstanceprober_is_extension_supported(const gfx_VkInstanceProber* prober, rawstring extension_name);
