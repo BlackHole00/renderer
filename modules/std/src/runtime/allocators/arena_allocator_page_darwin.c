@@ -4,7 +4,7 @@
  * @author Vicix (www.github.com/BlackHole00)
  */
 #include <std/runtime/allocators/arena_allocator.h>
-#ifdef BUILDER_OS_DARWIN
+#ifdef BUILD_OS_DARWIN
 
 #include <sys/mman.h>
 

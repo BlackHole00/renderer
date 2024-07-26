@@ -4,6 +4,6 @@
  * @author Vicix (www.github.com/BlackHole00)
  */
 #include <std/runtime/allocators/arena_allocator.h>
-#ifdef BUILDER_OS_WINDOWS
+#ifdef BUILD_OS_WINDOWS
 	#error Windows is not yet supported
 #endif

@@ -153,6 +153,19 @@ typedef char* rawstring;
  */
 #define after_main  __attribute__((destructor))
 
+/**
+ * @def swap(_x, _y)
+ * @brief Swaps the value of two variables
+ * @param _x The pointer to the first variable
+ * @param _y The pointer to the second variable
+ */
+#define swap(_x, _y) STD_BEGIN \
+	static_typecheck(typeof(_x), _y); \
+	typeof(*_x) _tmp = *_x; \
+	*_x = *_y; \
+	*_y = _tmp; \
+STD_END
+
 STD_DECLARE_STANDARD_COMPARATORS_OF(i8)
 STD_DECLARE_STANDARD_COMPARATORS_OF(u8)
 STD_DECLARE_STANDARD_COMPARATORS_OF(i16)

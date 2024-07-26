@@ -5,7 +5,7 @@
             "name": "Unix - Debug Engine",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/renderer.out",
+            "program": "${workspaceFolder}/bin/debug/TestApp",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

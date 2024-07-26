@@ -58,7 +58,7 @@ void gfx_vkdebugmessenger_make(
 	messenger->vulkan_logger = descriptor->logger;
 	messenger->allowed_message_types = descriptor->allowed_message_types;
 
-	messenger->messenger = nullptr;
+	messenger->messenger = VK_NULL_HANDLE;
 	messenger->instance = nullptr;
 
 	log_debug(logger, "Created gfx_VkDebugMessenger");
@@ -67,7 +67,7 @@ void gfx_vkdebugmessenger_make(
 void gfx_vkdebugmessenger_delete(gfx_VkDebugMessenger* messenger) {
 	log_trace(messenger->logger, "Deleting a gfx_VkDebugMessenger...");
 
-	if (messenger->messenger != nullptr) {
+	if (messenger->messenger != VK_NULL_HANDLE) {
 		gfx_vkdebugmessenger_detach(messenger);
 	}
 }
@@ -147,7 +147,7 @@ void gfx_vkdebugmessenger_detach(gfx_VkDebugMessenger* messenger) {
 		nullptr
 	);
 
-	messenger->messenger = nullptr;
+	messenger->messenger = VK_NULL_HANDLE;
 	messenger->instance = nullptr;
 
 	log_trace(messenger->logger, "Successfully detatched the gfx_VkDebugMessenger from the gfx_VkInstance");

@@ -59,7 +59,7 @@ int main(void) {
 		10, 2, 3, 5, 6, 8, 9, 1, 0
 	};
 	auto s = slice_from(usize)(&AAAA[0], countof(AAAA));
-	slice_sort_elements(usize)(s);
+	// slice_sort_elements(usize)(s);
 	for (usize i = 0; i < s.length; i++) {
 		log_error(logger, "%ld: %ld", i, s.data[i]);
 	}
@@ -78,7 +78,7 @@ int main(void) {
 	gfx_Result instance_init_result = gfx_instance_init(&(descriptor_of(gfx_Instance)){
 		.application_name = "Renderer",
 		.application_version = gfx_version_make(0, 0, 1),
-		.enable_debug = BUILDER_DEBUG
+		.enable_debug = BUILD_DEBUG,
 	}, &context);
 	assert(instance_init_result == GFX_SUCCESS);
 	defer(gfx_instance_deinit());
