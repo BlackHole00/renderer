@@ -9,4 +9,6 @@ build
 **/*.make
 **/bin
 **/obj
+**/*.xcworkspace
+**/*.xcodeproj
 modules/vulkan/lib/darwin/libvulkan.dylib

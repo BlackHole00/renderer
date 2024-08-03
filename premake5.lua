@@ -1,4 +1,4 @@
-require "premake5common"
+require "premake5modules/premake5common"
 
 workspace "Renderer"
 	configurations { "Debug", "Release" }
@@ -34,10 +34,6 @@ workspace "Renderer"
 		defines { "BUILD_OS_WINDOWS", "BUILD_ARCHITECTURE_ARM64", "BUILD_BITS=64" }
 		architecture "arm64"
 		system "windows"
-	filter "platforms:Darwin_i386"
-		defines { "BUILD_OS_DARWIN", "BUILD_ARCHITECTURE_I386", "BUILD_BITS=32" }
-		architecture "x86"
-		system "macosx"
 	filter "platforms:Darwin_amd64"
 		defines { "BUILD_OS_DARWIN", "BUILD_ARCHITECTURE_AMD64", "BUILD_BITS=64" }
 		architecture "x86_64"
@@ -64,9 +60,32 @@ project "*"
 	toolset "clang"
 	toolsversion "18"
 
+	filter "platforms:Windows_i386"
+		targetprefix "windows_i386_"
+	filter "platforms:Windows_amd64"
+		targetprefix "windows_amd64_"
+	filter "platforms:Windows_arm64"
+		targetprefix "windows_arm64_"
+	filter "platforms:Darwin_i386"
+		targetprefix "darwin_i386_"
+	filter "platforms:Darwin_amd64"
+		targetprefix "darwin_amd64_"
+	filter "platforms:Darwin_arm64"
+		targetprefix "darwin_arm64_"
+	filter "platforms:Linux_i386"
+		targetprefix "linux_i386_"
+	filter "platforms:Linux_amd64"
+		targetprefix "linux_amd64_"
+	filter "platforms:Linux_arm64"
+		targetprefix "linux_arm64_"
+
 include (modules_folder .. "std/premake5")
+include (modules_folder .. "glfw/premake5")
+include (modules_folder .. "vulkan/premake5")
 include (modules_folder .. "gfx-hal/premake5")
 include (modules_folder .. "main/premake5")
+
+vulkan_module_setup()
 
 -- project "Vulkan"
 -- 	kind "Utility"

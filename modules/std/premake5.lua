@@ -1,15 +1,16 @@
-std_module = {
-	name = "Std",
-	location = modules_folder .. "std",
-	includedirs = { modules_folder .. "std/include" },
-}
+std_projet_name = "Std"
+
+function std_project_exports()
+	includedirs { modules_folder .. "std/include" }
+	links { std_projet_name }
+end
 
 function declare_std_project()
-	project(std_module.name)
-		kind "StaticLib"
+	project (std_projet_name)
+		kind "SharedLib"
 		language "c"
-		location(std_module.location)
-		includedirs(std_module.includedirs)
+		location (modules_folder .. "std")
+		includedirs { modules_folder .. "std/include" }
 		files { modules_folder .. "std/src/**.c" }
 end
 

@@ -2,7 +2,6 @@ main_module = {
 	name = "Main",
 	location = modules_folder .. "main",
 	includedirs = concat(
-		std_module.includedirs,
 		gfxhal_module.includedirs
 	),
 }
@@ -11,12 +10,13 @@ function declare_main_project()
 	project "Main"
 		kind "ConsoleApp"
 		language "C"
-		location(main_module.location)
-		includedirs(main_module.includedirs)
+		location (modules_folder .. "main")
+		includedirs(gfxhal_module.includedirs)
 		links {
 			"Std", "Gfx-Hal", "glfw3",
 		}
 		files { modules_folder .. "main/src/**.c" }
+		std_project_exports()
 
 		filter "system:macosx"
 			libdirs { 
