@@ -24,6 +24,7 @@
 #define slice_find(T) STD_CAT(slice_, T, _find)
 // Heap sort
 #define slice_sort(T) STD_CAT(slice_, T, _sort)
+#define _slice_heapify(T) STD_CAT(_slice, T, _heapify)
 
 #define STD_DECLARE_SLICE_OF(T)                                         	   \
 typedef struct {                                                        	   \
@@ -100,32 +101,36 @@ static inline T* slice_find(T)(Slice(T) slice, bool (^search_predicate)(const T*
 	} \
 	return nullptr; \
 } \
-static inline void slice_sort(T)(Slice(T) slice, usize (^equality_predicate)(const T*, const T*)) { \
+static inline void _slice_heapify(T)(Slice(T) slice, usize start, usize end, isize (^equality_predicate)(const T*, const T*)) { \
+	usize root = start; \
+	while ((2 * root + 1) < end) { \
+		usize left_child = 2 * root + 1; \
+		usize right_child = left_child + 1; \
+		usize swap_idx = root; \
+		if (equality_predicate(&slice.data[swap_idx], &slice.data[left_child]) > 0) { \
+			swap_idx = left_child; \
+		} \
+		if (right_child < end && equality_predicate(&slice.data[swap_idx], &slice.data[right_child]) > 0) { \
+			swap_idx = right_child; \
+		} \
+		if (swap_idx == root) { \
+			return; \
+		} \
+		swap(&slice.data[root], &slice.data[swap_idx]); \
+		root = swap_idx; \
+	} \
+} \
+static inline void slice_sort(T)(Slice(T) slice, isize (^equality_predicate)(const T*, const T*)) { \
 	usize start = slice.length / 2; \
 	usize end = slice.length; \
+	while (start > 0) { \
+		start--; \
+		_slice_heapify(T)(slice, start, end, equality_predicate); \
+	} \
 	while (end > 1) { \
-		if (start > 0) { \
-			start--;\
-		} else { \
-			end--; \
-			swap(&slice.data[end], &slice.data[0]); \
-		} \
-		usize root = start; \
-		usize left_child = (2 * root) + 1; \
-		while (left_child < end) { \
-			usize child = left_child; \
-			if ((child + 1 < end) &&  \
-				(equality_predicate(&slice.data[child], &slice.data[child + 1]) < 0) \
-			) { \
-				child = child + 1; \
-			} \
-			if (equality_predicate(&slice.data[root], &slice.data[child]) < 0) { \
-				swap(&slice.data[root], &slice.data[child]); \
-				root = child; \
-			} else { \
-				break; \
-			} \
-		} \
+		end--; \
+		swap(&slice.data[end], &slice.data[0]); \
+		_slice_heapify(T)(slice, 0, end, equality_predicate); \
 	} \
 }
 

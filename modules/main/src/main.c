@@ -16,35 +16,6 @@ void show_banner(Logger logger) {
 	log_info(logger, "\tby Vicix");
 }
 
-static inline void slice_sort_elements(usize)(Slice(usize) slice) {
-	usize start = slice.length / 2;
-	usize end = slice.length;
-	while (end > 1) {
-		if (start > 0) {
-			start--;
-		} else {
-			end--;
-			swap(&slice.data[end], &slice.data[0]);
-		}
-		usize root = start;
-		usize left_child = (2 * root) + 1;
-		while (left_child < end) {
-			usize child = left_child;
-			if ((child + 1 < end) &&
-				(usize_scalar_comparator(&slice.data[child], &slice.data[child + 1]) < 0)
-			) {
-				child = child + 1;
-			}
-			if (usize_scalar_comparator(&slice.data[root], &slice.data[child]) < 0) {
-				swap(&slice.data[root], &slice.data[child]);
-				root = child;
-			} else {
-				break;
-			}
-		}
-	}
-}
-
 int main(void) {
 	Allocator allocator = singleton_of(SystemAllocator);
 	Allocator temp_allocator = arenaallocator_create(allocator);
@@ -60,15 +31,6 @@ int main(void) {
 		.global_allocator = global_allocator,
 		.logger = logger,
 	};
-
-	usize AAAA[] = {
-		10, 2, 3, 5, 6, 8, 9, 1, 0
-	};
-	auto s = slice_from(usize)(&AAAA[0], countof(AAAA));
-	// slice_sort_elements(usize)(s);
-	for (usize i = 0; i < s.length; i++) {
-		log_error(logger, "%ld: %ld", i, s.data[i]);
-	}
 
 	show_banner(logger);
 

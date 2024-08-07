@@ -15,6 +15,7 @@
 #include <std/runtime/optional.h>
 
 #define slice_clone(T) STD_CAT(slice_, T, _clone)
+#define slice_deep_clone(T) STD_CAT(slice_, T, _deep_clone)
 #define slice_make(T) STD_CAT(slice_, T, _make)
 #define slice_delete(T) STD_CAT(slice_, T, _delete)
 
@@ -24,7 +25,7 @@
 
 #define slice_sort_elements(T) STD_CAT(slice_, T, _sort_elements)
 
-#define slice_deep_clone(T) STD_CAT(slice_, T, _deep_clone)
+#define _slice_heapify_elements(T) STD_CAT(_slice_, T, _heapify_elements)
 
 #define STD_DECLARE_SLICE_MEM_UTILS_OF(T) \
 static inline Slice(T) slice_make(T)(usize length, Allocator allocator) { \
@@ -49,8 +50,8 @@ static inline void cloner_of(Slice(T))(const Slice(T)* source, Slice(T)* destina
 }
 
 #define STD_DECLARE_SLICE_COMMON_UTILS_OF(T, T_equality_comparator) \
+static_typecheck(STD_EQUALITY_COMPARATOR_SIGNATURE(T), T_equality_comparator); \
 static inline bool slice_contains_element(T)(Slice(T) slice, T* value) { \
-	static_typecheck(STD_EQUALITY_COMPARATOR_SIGNATURE(T), T_equality_comparator); \
 	for (usize i = 0; i < slice.length; i++) { \
 		if (T_equality_comparator(value, &slice.data[i])) { \
 			return true; \
@@ -76,38 +77,43 @@ static inline T* slice_find_element(T)(Slice(T) slice, T* value) { \
 }
 
 #define STD_DECLARE_SLICE_SORTING_UTILS_OF(T, T_scalar_comparator) \
+static_typecheck(STD_SCALAR_COMPARATOR_SIGNATURE(T), T_scalar_comparator); \
+static inline void _slice_heapify_elements(T)(Slice(T) slice, usize start, usize end) { \
+	usize root = start; \
+	while ((2 * root + 1) < end) { \
+		usize left_child = 2 * root + 1; \
+		usize right_child = left_child + 1; \
+		usize swap_idx = root; \
+		if (T_scalar_comparator(&slice.data[swap_idx], &slice.data[left_child]) > 0) { \
+			swap_idx = left_child; \
+		} \
+		if (right_child < end && T_scalar_comparator(&slice.data[swap_idx], &slice.data[right_child]) > 0) { \
+			swap_idx = right_child; \
+		} \
+		if (swap_idx == root) { \
+			return; \
+		} \
+		swap(&slice.data[root], &slice.data[swap_idx]); \
+		root = swap_idx; \
+	} \
+} \
 static inline void slice_sort_elements(T)(Slice(T) slice) { \
 	usize start = slice.length / 2; \
 	usize end = slice.length; \
+	while (start > 0) { \
+		start--; \
+		_slice_heapify_elements(T)(slice, start, end); \
+	} \
 	while (end > 1) { \
-		if (start > 0) { \
-			start--;\
-		} else { \
-			end--; \
-			swap(&slice.data[end], &slice.data[0]); \
-		} \
-		usize root = start; \
-		usize left_child = (2 * root) + 1; \
-		while (left_child < end) { \
-			usize child = left_child; \
-			if ((child + 1 < end) &&  \
-				(T_scalar_comparator(&slice.data[child], &slice.data[child + 1]) < 0) \
-			) { \
-				child = child + 1; \
-			} \
-			if (T_scalar_comparator(&slice.data[root], &slice.data[child]) < 0) { \
-				swap(&slice.data[root], &slice.data[child]); \
-				root = child; \
-			} else { \
-				break; \
-			} \
-		} \
+		end--; \
+		swap(&slice.data[end], &slice.data[0]); \
+		_slice_heapify_elements(T)(slice, 0, end); \
 	} \
 }
 
 #define STD_DECLARE_SLICE_DEEP_CLONE_OF(T, T_deep_cloner) \
+static_typecheck(STD_DEEP_CLONE_SIGNATURE(T), T_deep_cloner); \
 static inline Slice(T) slice_deep_clone(T)(Slice(T) source, Allocator allocator) { \
-	static_typecheck(STD_DEEP_CLONE_SIGNATURE(T), T_deep_cloner); \
 	Slice(T) result = slice_make(T)(source.length, allocator); \
 	for (usize i = 0; i < source.length; i++) { \
 		T_deep_cloner(&souce.data[i], &result.data[i], allocator); \
@@ -165,7 +171,7 @@ STD_DECLARE_SLICE_SORTING_UTILS_OF(u64,       scalar_comparator_of(u64))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(f32,       scalar_comparator_of(f32))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(f64,       scalar_comparator_of(f64))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(isize,     scalar_comparator_of(isize))
-// STD_DECLARE_SLICE_SORTING_UTILS_OF(usize,     scalar_comparator_of(usize))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(usize,     scalar_comparator_of(usize))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(rune,      scalar_comparator_of(rune))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(rawstring, scalar_comparator_of(rawstring))
 
