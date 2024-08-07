@@ -5,6 +5,12 @@
 #include <glfw/glfw3.h>
 #include <gfx/hal/instance.h>
 
+#ifdef BUILD_DEBUG
+#	define GFX_HAL_DEBUG 1
+#else
+#	define GFX_HAL_DEBUG 0
+#endif
+
 void show_banner(Logger logger) {
 	log_info(logger, "Renderer - v.0.0.1");
 	log_info(logger, "\tby Vicix");
@@ -24,7 +30,7 @@ static inline void slice_sort_elements(usize)(Slice(usize) slice) {
 		usize left_child = (2 * root) + 1;
 		while (left_child < end) {
 			usize child = left_child;
-			if ((child + 1 < end) && 
+			if ((child + 1 < end) &&
 				(usize_scalar_comparator(&slice.data[child], &slice.data[child + 1]) < 0)
 			) {
 				child = child + 1;
@@ -78,7 +84,7 @@ int main(void) {
 	gfx_Result instance_init_result = gfx_instance_init(&(descriptor_of(gfx_Instance)){
 		.application_name = "Renderer",
 		.application_version = gfx_version_make(0, 0, 1),
-		.enable_debug = BUILD_DEBUG,
+		.enable_debug = GFX_HAL_DEBUG,
 	}, &context);
 	assert(instance_init_result == GFX_SUCCESS);
 	defer(gfx_instance_deinit());

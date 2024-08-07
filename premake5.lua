@@ -2,7 +2,7 @@ require "premake5modules/premake5common"
 
 workspace "Renderer"
 	configurations { "Debug", "Release" }
-	platforms { 
+	platforms {
 		"Windows_i386",
 		"Windows_amd64",
 		"Windows_arm64",
@@ -19,7 +19,7 @@ workspace "Renderer"
 		symbols "On"
 	filter "configurations:Release"
 		defines { "BUILD_RELEASE" }
-		targetdir  "bin/release" 
+		targetdir  "bin/release"
 		optimize "On"
 
 	filter "platforms:Windows_i386"
@@ -86,16 +86,6 @@ include (modules_folder .. "gfx-hal/premake5")
 include (modules_folder .. "main/premake5")
 
 vulkan_module_setup()
-
--- project "Vulkan"
--- 	kind "Utility"
--- 	libdirs { "modules/vulkan/lib/darwin" }
--- 	links { "MoltenVK" }
-
--- project "Glfw"
--- 	kind "Utility"
--- 	libdirs { "modules/glfw/lib/darwin-arm64" }
--- 	links { "glfw" }
 
 declare_std_project()
 declare_gfxhal_project()

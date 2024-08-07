@@ -1,8 +1,9 @@
 glfw3_module_name = "glfw3"
 
 function glfw3_module_exports()
-	includedirs { modules_folder .. "glfw/include" }
-	links { "glfw3" }
+	filter {}
+		includedirs { modules_folder .. "glfw/include" }
+		links { "glfw3" }
 
 	filter "platforms:darwin_arm64"
 		libdirs { "modules/glfw/lib/darwin-arm64" }

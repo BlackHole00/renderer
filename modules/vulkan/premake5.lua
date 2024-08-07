@@ -8,6 +8,12 @@ function vulkan_module_setup()
 	if os.isfile("modules/vulkan/lib/darwin/libvulkan.dylib") or os.islink("modules/vulkan/lib/darwin/libvulkan.dylib") then
 		os.execute("rm modules/vulkan/lib/darwin/libvulkan.dylib")
 	end
+	if os.isfile("bin/debug/libvulkan.1.dylib") or os.islink("bin/debug/libvulkan.1.dylib") then
+		os.execute("rm bin/debug/libvulkan.1.dylib")
+	end
+	if os.isfile("bin/release/libvulkan.1.dylib") or os.islink("bin/release/libvulkan.1.dylib") then
+		os.execute("rm bin/release/libvulkan.1.dylib")
+	end
 
 	vulkan_sdk_path = os.getenv("VULKAN_SDK")
 	if vulkan_sdk_path == nil or vulkan_sdk_path == "" then
@@ -30,18 +36,36 @@ function vulkan_module_setup()
 	end
 
 	os.executef("ln -s %s modules/vulkan/lib/darwin/libvulkan.dylib", libvulkan_path)
+
+	--- TODO(Vicix): Find a better way to fix the rpath
+	os.executef("ln -s %s bin/release/libvulkan.1.dylib", libvulkan_path)
+	os.executef("ln -s %s bin/debug/libvulkan.1.dylib", libvulkan_path)
 end
 
 function vulkan_module_exports()
-	includedirs { modules_folder .. "vulkan/include" }
+	filter {}
+		includedirs { modules_folder .. "vulkan/include" }
 
-	filter "platforms:not darwin* or configurations:Release"
+	filter "platforms:not darwin* or configurations:Debug"
 		links { "vulkan" }
 	filter { "platforms:darwin*", "configurations:Release" }
 		links { "MoltenVK" }
 
 	filter "platforms:darwin*"
 		libdirs { "modules/vulkan/lib/darwin" }
+		links {
+			"MoltenVK",
+			"c++",
+			"Cocoa.framework",
+			"IOKit.framework",
+			"CoreVideo.framework",
+			"Metal.framework",
+			"QuartzCore.framework",
+			"CoreGraphics.framework",
+			"AppKit.framework",
+			"Foundation.framework",
+			"IOSurface.framework"
+		}
 	filter "platforms:Windows_i386"
 		libdirs { "modules/vulkan/lib/windows-i386" }
 	filter "platforms:Windows_amd64"

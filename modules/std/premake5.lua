@@ -1,8 +1,9 @@
 std_projet_name = "Std"
 
 function std_project_exports()
-	includedirs { modules_folder .. "std/include" }
-	links { std_projet_name }
+	filter {}
+		includedirs { modules_folder .. "std/include" }
+		links { std_projet_name }
 end
 
 function declare_std_project()

@@ -1,40 +1,14 @@
-main_module = {
-	name = "Main",
-	location = modules_folder .. "main",
-	includedirs = concat(
-		gfxhal_module.includedirs
-	),
-}
+main_project_name = "Main"
 
 function declare_main_project()
-	project "Main"
+	project(main_project_name)
 		kind "ConsoleApp"
 		language "C"
 		location (modules_folder .. "main")
-		includedirs(gfxhal_module.includedirs)
-		links {
-			"Std", "Gfx-Hal", "glfw3",
-		}
 		files { modules_folder .. "main/src/**.c" }
+		glfw3_module_exports()
+		vulkan_module_exports()
 		std_project_exports()
-
-		filter "system:macosx"
-			libdirs { 
-				"modules/vulkan/lib/darwin",
-				"modules/glfw/lib/darwin-arm64"
-			}
-			links {
-				"MoltenVK",
-				"c++",
-				"Cocoa.framework",
-				"IOKit.framework",
-				"CoreVideo.framework",
-				"Metal.framework",
-				"QuartzCore.framework",
-				"CoreGraphics.framework",
-				"AppKit.framework",
-				"Foundation.framework",
-				"IOSurface.framework"
-			}
+		gfxhal_project_exports()
 end
 
