@@ -44,6 +44,7 @@
 #include <std/math/bits.h>
 
 #include <std/runtime/optional.h>
+#include <std/runtime/pair.h>
 #include <std/runtime/slice.h>
 #include <std/runtime/slice_utils.h>
 #include <std/runtime/allocator.h>
