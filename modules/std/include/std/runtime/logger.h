@@ -12,8 +12,6 @@
 
 #include <stdarg.h>
 
-#define STD_PRINTF_LIKE(FMT_ARG, FIRST_VA_ARG) __attribute__((__format__ (__printf__, FMT_ARG, FIRST_VA_ARG)))
-
 typedef enum {
 	LOG_LEVEL_FATAL = 5,
 	LOG_LEVEL_ERROR = 4,
@@ -51,7 +49,9 @@ typedef struct {
 #define logger_trace(...) logger_trace_ex (sourcecodelocation_current(), __VA_ARGS__)
 
 void logger_log_ex(SourceCodeLocation location, Logger logger, LogLevel level, rawstring format, va_list args);
-static inline STD_PRINTF_LIKE(3, 4) void logger_fatal_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void logger_fatal_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	va_list args;
 	va_start(args, format);
 
@@ -59,7 +59,9 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_fatal_ex(SourceCodeLocation loca
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void logger_error_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void logger_error_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	if (logger.minimum_log_level > LOG_LEVEL_ERROR) {
 		return;
 	}
@@ -71,7 +73,9 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_error_ex(SourceCodeLocation loca
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void logger_warn_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void logger_warn_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	if (logger.minimum_log_level > LOG_LEVEL_WARN) {
 		return;
 	}
@@ -83,7 +87,9 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_warn_ex(SourceCodeLocation locat
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void logger_info_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void logger_info_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	if (logger.minimum_log_level > LOG_LEVEL_INFO) {
 		return;
 	}
@@ -95,7 +101,9 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_info_ex(SourceCodeLocation locat
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void logger_debug_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void logger_debug_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	if (logger.minimum_log_level > LOG_LEVEL_DEBUG) {
 		return;
 	}
@@ -107,7 +115,9 @@ static inline STD_PRINTF_LIKE(3, 4) void logger_debug_ex(SourceCodeLocation loca
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void logger_trace_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void logger_trace_ex(SourceCodeLocation location, Logger logger, rawstring format, ...) {
 	if (logger.minimum_log_level > LOG_LEVEL_TRACE) {
 		return;
 	}

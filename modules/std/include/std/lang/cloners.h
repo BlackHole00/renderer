@@ -48,6 +48,7 @@ STD_DECLARE_STANDARD_CLONERS_OF(f32)
 STD_DECLARE_STANDARD_CLONERS_OF(isize)
 STD_DECLARE_STANDARD_CLONERS_OF(usize)
 STD_DECLARE_STANDARD_CLONERS_OF(byte)
+STD_DECLARE_STANDARD_CLONERS_OF(char)
 STD_DECLARE_STANDARD_CLONERS_OF(rune)
 
 static inline void shallow_cloner_of(rawstring)(const rawstring* source, rawstring* destination, Allocator allocator) {

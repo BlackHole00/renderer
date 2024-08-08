@@ -51,4 +51,6 @@ static inline void _std_defer_resolution(void (^*defer_block)(void)) {
  * @warning defer has a small performance impact. Consider using the temporary
  *          allocator or goto statements instead
  */
-#define defer(...) __attribute__((cleanup(_std_defer_resolution))) void (^_STD_DEFER_BLOCK_NAME())(void) = ^{ __VA_ARGS__; }
+#define defer(...) __attribute__((__cleanup__(_std_defer_resolution))) void (^_STD_DEFER_BLOCK_NAME())(void) = ^{ __VA_ARGS__; }
+
+#define cleanup(...) __attribute__((__cleanup__(__VA_ARGS__)))

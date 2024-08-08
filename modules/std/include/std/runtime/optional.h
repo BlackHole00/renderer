@@ -40,6 +40,7 @@ static inline T optional_value(T)(Optional(T) optional) {              		   \
 	return optional.value;                                             		   \
 } 
 
+STD_DECLARE_OPTIONAL_OF(char)
 STD_DECLARE_OPTIONAL_OF(byte)
 STD_DECLARE_OPTIONAL_OF(i8)
 STD_DECLARE_OPTIONAL_OF(i16)

@@ -2,8 +2,8 @@
 
 #include <std/macro/macros.h>
 
-#define Pair(T, U) STD_CAT(Pair_, T, _, U)
-#define pair_make(T, U) STD_CAT(pair_, T, _, U, _make)
+#define Pair(T, U) STD_CAT(Pair$, T, $, U)
+#define pair_make(T, U) STD_CAT(pair$, T, $, U, _make)
 
 #define STD_DECLARE_PAIR(T, U) typedef struct {                                \
 	T first;                                                                   \

@@ -8,9 +8,12 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <wchar.h>
 #include <strings.h>
+
+#ifndef bool
+#    include <stdbool.h>
+#endif
 
 #include <std/lang/comparators.h>
 
@@ -179,6 +182,7 @@ STD_DECLARE_STANDARD_COMPARATORS_OF(f32)
 STD_DECLARE_STANDARD_COMPARATORS_OF(isize)
 STD_DECLARE_STANDARD_COMPARATORS_OF(usize)
 STD_DECLARE_STANDARD_COMPARATORS_OF(byte)
+STD_DECLARE_STANDARD_COMPARATORS_OF(char)
 STD_DECLARE_STANDARD_COMPARATORS_OF(rune)
 
 STD_DECLARE_STRING_COMPARATORS_OF(rawstring)

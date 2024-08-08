@@ -14,22 +14,23 @@
 
 static const usize STD_DEFAULT_VECTOR_CAPACITY = 8;
 
-#define Vector(T) STD_CAT(Vector_, T)
-#define vector_make(T) STD_CAT(vector_, T, _make)
-#define vector_make_with_capacity(T) STD_CAT(vector_, T, _make_with_capacity)
-#define vector_clone(T) STD_CAT(vector_, T, _clone)
-#define vector_delete(T) STD_CAT(vector_, T, _delete)
-#define vector_reserve(T) STD_CAT(vector_, T, _reserve)
-#define vector_resize(T) STD_CAT(vector_, T, _resize)
-#define vector_is_index_valid(T) STD_CAT(vector_, T, _is_index_valid)
-#define vector_get(T) STD_CAT(vector_, T, _get)
-#define vector_set(T) STD_CAT(vector_, T, _set)
-#define vector_append(T) STD_CAT(vector_, T, _append)
-#define vector_remove(T) STD_CAT(vector_, T, _remove)
-#define vector_insert(T) STD_CAT(vector_, T, _insert)
-#define vector_as_slice(T) STD_CAT(vector_, T, _as_slice)
+#define Vector(T) STD_CAT(Vector$, T)
+#define vector_make(T) STD_CAT(vector$, T, _make)
+#define vector_make_with_capacity(T) STD_CAT(vector$, T, _make_with_capacity)
+#define vector_clone(T) STD_CAT(vector$, T, _clone)
+#define vector_delete(T) STD_CAT(vector$, T, _delete)
+#define vector_reserve(T) STD_CAT(vector$, T, _reserve)
+#define vector_resize(T) STD_CAT(vector$, T, _resize)
+#define vector_is_index_valid(T) STD_CAT(vector$, T, _is_index_valid)
+#define vector_get(T) STD_CAT(vector$, T, _get)
+#define vector_set(T) STD_CAT(vector$, T, _set)
+#define vector_append(T) STD_CAT(vector$, T, _append)
+#define vector_remove(T) STD_CAT(vector$, T, _remove)
+#define vector_insert(T) STD_CAT(vector$, T, _insert)
+#define vector_as_slice(T) STD_CAT(vector$, T, _as_slice)
+#define vector_as_subslice(T) STD_CAT(vector$, T, _as_subslice)
 
-#define _vector_from_allocation(T) STD_CAT(_vector_, T, _from_allocation)
+#define _vector_from_allocation(T) STD_CAT(_vector$, T, _from_allocation)
 
 #define STD_DECLARE_VECTOR_OF(T) \
 typedef struct { \
@@ -120,6 +121,10 @@ static inline void vector_insert(T)(Vector(T)* vector, usize index, T value) { \
 static inline Slice(T) vector_as_slice(T)(const Vector(T)* vector) { \
 	return slice_from(T)(vector->allocation.data, vector->length); \
 } \
+static inline Slice(T) vector_as_subslice(T)(const Vector(T)* vector, usize start, usize end) { \
+	Slice(T) slice = vector_as_slice(T)(vector); \
+	return slice_subslice(T)(slice, start, end); \
+} \
 static inline void cloner_of(Vector(T))(const Vector(T)* source, Vector(T)* destination, Allocator allocator) { \
 	if (source == nullptr || destination == nullptr) { \
 		return; \
@@ -128,6 +133,7 @@ static inline void cloner_of(Vector(T))(const Vector(T)* source, Vector(T)* dest
 }
 
 STD_DECLARE_VECTOR_OF(byte)
+STD_DECLARE_VECTOR_OF(char)
 STD_DECLARE_VECTOR_OF(i8)
 STD_DECLARE_VECTOR_OF(i16)
 STD_DECLARE_VECTOR_OF(i32)

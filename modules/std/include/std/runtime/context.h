@@ -28,7 +28,9 @@ typedef struct {
 static inline void context_log_ex(SourceCodeLocation location, Context* context, LogLevel level, rawstring format, va_list args) {
 	logger_log_ex(location, context->logger, level, format, args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void context_fatal_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void context_fatal_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	va_list args;
 	va_start(args, format);
 
@@ -36,7 +38,9 @@ static inline STD_PRINTF_LIKE(3, 4) void context_fatal_ex(SourceCodeLocation loc
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void context_error_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void context_error_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	if (context->logger.minimum_log_level > LOG_LEVEL_ERROR) {
 		return;
 	}
@@ -48,7 +52,9 @@ static inline STD_PRINTF_LIKE(3, 4) void context_error_ex(SourceCodeLocation loc
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void context_warn_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void context_warn_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	if (context->logger.minimum_log_level > LOG_LEVEL_WARN) {
 		return;
 	}
@@ -60,7 +66,9 @@ static inline STD_PRINTF_LIKE(3, 4) void context_warn_ex(SourceCodeLocation loca
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void context_info_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void context_info_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	if (context->logger.minimum_log_level > LOG_LEVEL_INFO) {
 		return;
 	}
@@ -72,7 +80,9 @@ static inline STD_PRINTF_LIKE(3, 4) void context_info_ex(SourceCodeLocation loca
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void context_debug_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void context_debug_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	if (context->logger.minimum_log_level > LOG_LEVEL_DEBUG) {
 		return;
 	}
@@ -84,7 +94,9 @@ static inline STD_PRINTF_LIKE(3, 4) void context_debug_ex(SourceCodeLocation loc
 
 	va_end(args);
 }
-static inline STD_PRINTF_LIKE(3, 4) void context_trace_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
+
+[[gnu::format(printf, 3, 4)]]
+static inline void context_trace_ex(SourceCodeLocation location, Context* context, rawstring format, ...) {
 	if (context->logger.minimum_log_level > LOG_LEVEL_TRACE) {
 		return;
 	}
