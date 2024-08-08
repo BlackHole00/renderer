@@ -14,23 +14,29 @@
 #include <std/runtime/slice.h>
 #include <std/runtime/optional.h>
 
-#define slice_clone(T) STD_CAT(slice_, T, _clone)
-#define slice_deep_clone(T) STD_CAT(slice_, T, _deep_clone)
-#define slice_make(T) STD_CAT(slice_, T, _make)
-#define slice_delete(T) STD_CAT(slice_, T, _delete)
+#define slice_clone(T) STD_CAT(slice$, T, _clone)
+#define slice_deep_clone(T) STD_CAT(slice$, T, _deep_clone)
+#define slice_make(T) STD_CAT(slice$, T, _make)
+#define slice_make_from_data(T) STD_CAT(slice$, T, _make_from_data)
+#define slice_delete(T) STD_CAT(slice$, T, _delete)
 
-#define slice_contains_element(T) STD_CAT(slice_, T, _contains_element)
-#define slice_index_of_element(T) STD_CAT(slice_, T, _index_of_element)
-#define slice_find_element(T) STD_CAT(slice_, T, _find_element)
+#define slice_contains_element(T) STD_CAT(slice$, T, _contains_element)
+#define slice_index_of_element(T) STD_CAT(slice$, T, _index_of_element)
+#define slice_find_element(T) STD_CAT(slice$, T, _find_element)
 
-#define slice_sort_elements(T) STD_CAT(slice_, T, _sort_elements)
+#define slice_sort_elements(T) STD_CAT(slice$, T, _sort_elements)
 
-#define _slice_heapify_elements(T) STD_CAT(_slice_, T, _heapify_elements)
+#define _slice_heapify_elements(T) STD_CAT(_slice$, T, _heapify_elements)
 
 #define STD_DECLARE_SLICE_MEM_UTILS_OF(T) \
 static inline Slice(T) slice_make(T)(usize length, Allocator allocator) { \
 	Slice(byte) allocation = allocator_alloc(allocator, length * sizeof(T)); \
 	return slice_from_bytes_slice(T)(allocation); \
+} \
+static inline Slice(T) slice_make_from_data(T)(T* data, usize length, Allocator allocator) { \
+	Slice(T) slice = slice_make(T)(length, allocator); \
+	memcpy(slice.data, data, length * sizeof(T)); \
+	return slice; \
 } \
 static inline Slice(T) slice_clone(T)(Slice(T) slice, Allocator allocator) { \
 	Slice(byte) new_slice = allocator_alloc(allocator, slice.length * sizeof(T)); \
@@ -128,6 +134,7 @@ static inline void deep_cloner_of(Slice(T))(const Slice(T)* source, Slice(T)* de
 }
 
 STD_DECLARE_SLICE_MEM_UTILS_OF(byte)
+STD_DECLARE_SLICE_MEM_UTILS_OF(char)
 STD_DECLARE_SLICE_MEM_UTILS_OF(i8)
 STD_DECLARE_SLICE_MEM_UTILS_OF(i16)
 STD_DECLARE_SLICE_MEM_UTILS_OF(i32)
@@ -144,6 +151,7 @@ STD_DECLARE_SLICE_MEM_UTILS_OF(rune)
 STD_DECLARE_SLICE_MEM_UTILS_OF(rawstring)
 
 STD_DECLARE_SLICE_COMMON_UTILS_OF(byte,      equality_comparator_of(byte))
+STD_DECLARE_SLICE_COMMON_UTILS_OF(char,      equality_comparator_of(char))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(i8,        equality_comparator_of(i8))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(i16,       equality_comparator_of(i16))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(i32,       equality_comparator_of(i32))
@@ -160,6 +168,7 @@ STD_DECLARE_SLICE_COMMON_UTILS_OF(rune,      equality_comparator_of(rune))
 STD_DECLARE_SLICE_COMMON_UTILS_OF(rawstring, equality_comparator_of(rawstring))
 
 STD_DECLARE_SLICE_SORTING_UTILS_OF(byte,      scalar_comparator_of(byte))
+STD_DECLARE_SLICE_SORTING_UTILS_OF(char,      scalar_comparator_of(char))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(i8,        scalar_comparator_of(i8))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(i16,       scalar_comparator_of(i16))
 STD_DECLARE_SLICE_SORTING_UTILS_OF(i32,       scalar_comparator_of(i32))

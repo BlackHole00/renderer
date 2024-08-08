@@ -10,9 +10,9 @@
  * 
  * STD implements usefull things like:
  *     - usefull macros, especially for managing variadic argument macros
- *	   - improved, more explicit types (link u32 and i64)
- *	   - new language utilities (like defer and lambda)
- *	   - improved data structures (like descriptors, singletons, vtables...)
+ *     - improved, more explicit types (link u32 and i64)
+ *     - new language utilities (like defer and lambda)
+ *     - improved data structures (like descriptors, singletons, vtables...)
  *     - improved logging
  *     - improved memory management (using slices, allocators and arenas)
  *     - a context system
@@ -40,6 +40,7 @@
 #include <std/lang/mem.h>
 #include <std/lang/log.h>
 #include <std/lang/source_code_location.h>
+#include <std/lang/assert.h>
 
 #include <std/math/bits.h>
 
@@ -48,6 +49,8 @@
 #include <std/runtime/slice.h>
 #include <std/runtime/slice_utils.h>
 #include <std/runtime/allocator.h>
+#include <std/runtime/string.h>
+#include <std/runtime/string_builder.h>
 #include <std/runtime/logger.h>
 #include <std/runtime/context.h>
 #include <std/runtime/rc.h>

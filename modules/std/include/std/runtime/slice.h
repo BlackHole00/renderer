@@ -10,20 +10,20 @@
 #include <std/lang/types.h>
 #include <std/runtime/optional.h>
 
-#define Slice(T) STD_CAT(Slice_, T)
-#define slice_from(T) STD_CAT(slice_, T, _from)
-#define slice_make_null(T) STD_CAT(slice_, T, _make_null)
-#define slice_from_bytes_slice(T) STD_CAT(slice_, T, _from_bytes_slice)
-#define slice_get(T) STD_CAT(slice_, T, _get)
-#define slice_is_index_valid(T) STD_CAT(slice_, T, _is_index_valid)
-#define slice_as_bytes_slice(T) STD_CAT(slice_, T, _as_bytes_slice)
-#define slice_is_null(T) STD_CAT(slice_, T, _is_null)
-#define slice_subslice(T) STD_CAT(slice_, T, _subslice)
-#define slice_contains(T) STD_CAT(slice_, T, _contains)
-#define slice_index_of(T) STD_CAT(slice_, T, _index_of)
-#define slice_find(T) STD_CAT(slice_, T, _find)
+#define Slice(T) STD_CAT(Slice$, T)
+#define slice_from(T) STD_CAT(slice$, T, _from)
+#define slice_make_null(T) STD_CAT(slice$, T, _make_null)
+#define slice_from_bytes_slice(T) STD_CAT(slice$, T, _from_bytes_slice)
+#define slice_get(T) STD_CAT(slice$, T, _get)
+#define slice_is_index_valid(T) STD_CAT(slice$, T, _is_index_valid)
+#define slice_as_bytes_slice(T) STD_CAT(slice$, T, _as_bytes_slice)
+#define slice_is_null(T) STD_CAT(slice$, T, _is_null)
+#define slice_subslice(T) STD_CAT(slice$, T, _subslice)
+#define slice_contains(T) STD_CAT(slice$, T, _contains)
+#define slice_index_of(T) STD_CAT(slice$, T, _index_of)
+#define slice_find(T) STD_CAT(slice$, T, _find)
 // Heap sort
-#define slice_sort(T) STD_CAT(slice_, T, _sort)
+#define slice_sort(T) STD_CAT(slice$, T, _sort)
 #define _slice_heapify(T) STD_CAT(_slice, T, _heapify)
 
 #define STD_DECLARE_SLICE_OF(T)                                         	   \
@@ -135,6 +135,7 @@ static inline void slice_sort(T)(Slice(T) slice, isize (^equality_predicate)(con
 }
 
 STD_DECLARE_SLICE_OF(byte)
+STD_DECLARE_SLICE_OF(char)
 STD_DECLARE_SLICE_OF(i8)
 STD_DECLARE_SLICE_OF(i16)
 STD_DECLARE_SLICE_OF(i32)
