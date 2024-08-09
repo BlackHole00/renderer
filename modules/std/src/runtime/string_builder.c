@@ -1,5 +1,6 @@
 #include <std/runtime/string_builder.h>
 
+#include <std/lang/assert.h>
 #include <stdarg.h>
 
 void stringbuilder_make(StringBuilder* builder, Allocator allocator) {
@@ -36,7 +37,10 @@ Optional(char) stringbuilder_charat(const StringBuilder* builder, usize index) {
 
 void stringbuilder_append(StringBuilder* builder, string str) {
 	usize starting_length = stringbuilder_length(builder);
-	usize required_length = required_length + str.length;
+	if (starting_length > 0) { // NOTE(Vicix): Account for previous null terminator character
+		starting_length -= 1;
+	}
+	usize required_length = starting_length + str.length;
 
 	vector_resize(char)(&builder->buffer, required_length);
 	memcpy(&builder->buffer.data[starting_length], &str.raw_string[0], str.length);
@@ -46,21 +50,22 @@ void stringbuilder_append_format(StringBuilder* builder, rawstring format, ...) 
 	va_list args;
 	va_start(args, format);
 
-	rawstring first_free_space = &builder->buffer.data[builder->buffer.length];
-	usize available_free_space = &builder->buffer.capacity - &builder->buffer.length;
+	usize format_length = vsnprintf(nullptr, 0, format, args);
 
-	usize written_bytes = vsnprintf(first_free_space, 0, format, args);
-	if (written_bytes < available_free_space) {
-		goto cleanup;
+	usize starting_length = stringbuilder_length(builder);
+	if (starting_length > 0) { // NOTE(Vicix): Account for previous null terminator character
+		starting_length -= 1;
 	}
+	usize required_length = starting_length + format_length;
 
-	vector_resize(char)(&builder->buffer, builder->buffer.length + written_bytes + 1);
-	vsnprintf(first_free_space, 0, format, args);
+	vector_resize(char)(&builder->buffer, required_length);
 
-cleanup:
+	rawstring first_free_space = &builder->buffer.data[starting_length];
+	vsprintf(first_free_space, format, args);
+
 	va_end(args);
 }
 
 void stringbuilder_replace_all(StringBuilder* builder, string find, string replace) {
-	
+	unimplemented();
 }
